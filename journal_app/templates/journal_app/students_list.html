@@ -1,0 +1,26 @@
+<!-- journal_app/templates/journal_app/students_list.html -->
+{% extends 'journal_app/base.html' %}
+{% load static %}
+
+
+
+{% block title %}Список студентов{% endblock %}
+
+{% block content %}
+    <h1>Список студентов</h1>
+
+    <form method="get" action="">
+        <input type="text" name="q" placeholder="Поиск по имени, фамилии или ID" value="{{ request.GET.q }}">
+        <button type="submit">Поиск</button>
+    </form>
+
+    <ul>
+        {% if students %}
+            {% for student in students %}
+                <li><a href="{% url 'student_detail' student.id %}">{{ student.first_name }} {{ student.last_name }}</a></li>
+            {% endfor %}
+        {% else %}
+            <li>Студенты не найдены.</li>
+        {% endif %}
+    </ul>
+{% endblock %}

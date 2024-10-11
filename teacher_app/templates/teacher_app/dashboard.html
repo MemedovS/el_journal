@@ -1,0 +1,39 @@
+
+{% extends 'journal_app/base.html' %}
+{% load static %}
+
+
+
+{% block content %}
+
+    <h1>Добро пожаловать, {{ teacher.user.username }}!</h1>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Выйти</button>
+    </form>
+
+
+    {% for subject, students in students_with_grades.items %}
+        <h2>Предмет: {{ subject.name }}</h2>
+
+        <ul>
+            {% for item in students %}
+                <li>
+                    {{ item.student.first_name }} {{ item.student.last_name }}
+                    <ul>
+                        {% for grade in item.grades %}
+                            <li>{{ grade.grade }} ({{ grade.date }})</li>
+                        {% empty %}
+                            <li>Нет оценок.</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% empty %}
+                <li>Нет студентов по этому предмету.</li>
+            {% endfor %}
+        </ul>
+    {% empty %}
+        <p>Нет предметов для отображения.</p>
+    {% endfor %}
+{% endblock %}
+

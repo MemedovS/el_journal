@@ -1,0 +1,113 @@
+/* journal_app/static/journal_app/styles.css */
+/* Пример цветовой палитры */
+:root {
+    --main-color: #4A90E2; /* Основной цвет */
+    --accent-color: #50E3C2; /* Дополнительный цвет */
+    --background-color: #F7F7F7; /* Фоновый цвет */
+    --text-color: #333333; /* Цвет текста */
+}
+
+body {
+    font-family: 'Roboto', sans-serif; /* Применяем новый шрифт */
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+h1 {
+    color: var(--text-color);
+    border-bottom: 2px solid var(--main-color);
+    padding-bottom: 10px;
+}
+
+h2 {
+    color: var(--main-color);
+}
+
+p {
+    line-height: 1.6;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background: #f9f9f9;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 5px solid var(--main-color);
+}
+
+a {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    background: var(--main-color);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background 0.3s, transform 0.3s, box-shadow 0.3s; /* Плавные переходы */
+}
+
+a:hover {
+    background: #0056b3;
+    transform: translateY(-2px); /* Поднимаем кнопку немного вверх */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Добавляем тень */
+}
+
+/* Медиазапросы для адаптивного дизайна */
+@media (max-width: 768px) {
+    body {
+        padding: 10px; /* Уменьшаем отступы на мобильных устройствах */
+    }
+
+    .container {
+        padding: 15px; /* Уменьшаем внутренние отступы контейнера */
+    }
+
+    h1 {
+        font-size: 24px; /* Уменьшаем размер заголовка на мобильных устройствах */
+    }
+
+    h2 {
+        font-size: 20px; /* Уменьшаем размер подзаголовка */
+    }
+
+    a {
+        padding: 8px 12px; /* Уменьшаем размеры кнопки на мобильных устройствах */
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 5px; /* Дальнейшее уменьшение отступов для очень маленьких экранов */
+    }
+
+    h1 {
+        font-size: 20px; /* Уменьшаем размер заголовка еще больше */
+    }
+
+    h2 {
+        font-size: 18px; /* Уменьшаем размер подзаголовка еще больше */
+    }
+
+    li {
+        padding: 8px; /* Уменьшаем отступы в списках на маленьких экранах */
+    }
+
+    a {
+        padding: 6px 10px; /* Уменьшаем размеры кнопки еще больше */
+    }
+}

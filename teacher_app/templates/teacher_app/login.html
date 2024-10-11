@@ -1,0 +1,15 @@
+<!-- teacher_app/templates/teacher_app/login.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Вход для преподавателей</title>
+</head>
+<body>
+    <h2>Вход для преподавателей</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Войти</button>
+    </form>
+</body>
+</html>

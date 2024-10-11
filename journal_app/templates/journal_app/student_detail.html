@@ -1,0 +1,21 @@
+<!-- journal_app/templates/journal_app/student_detail.html -->
+{% extends 'journal_app/base.html' %}
+{% load static %}
+{% block title %}Детали студента{% endblock %}
+
+{% block content %}
+    <h1>Детали студента: {{ student.first_name }} {{ student.last_name }}</h1>
+    <p><strong>ID:</strong> {{ student.student_id }}</p>
+    <p><strong>Дата рождения:</strong> {{ student.date_of_birth }}</p>
+
+    <h2>Оценки</h2>
+    <ul>
+        {% for grade in grades %}
+            <li><strong>{{ grade.subject.name }}</strong>: {{ grade.grade }} ({{ grade.date }})</li>
+        {% empty %}
+            <li>Оценки не найдены.</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'students_list' %}">Назад к списку студентов</a>
+{% endblock %}
