@@ -98,7 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Baku'
 
 USE_I18N = True
 
@@ -118,6 +118,8 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 TEACHER = 'teacher'
 STUDENT = 'student'
@@ -136,6 +138,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'login'
+#
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'diler-78@mail.ru'  # ваш адрес электронной почты
+EMAIL_HOST_PASSWORD = 'DxdrCfyHEV3FXhjHMZZJ'  # ваш пароль от почты
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # адрес отправителя по умолчанию
 
 
 

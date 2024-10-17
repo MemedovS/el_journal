@@ -10,7 +10,6 @@ django-tables2==2.3.1
 djangorestframework==3.12.1
 importlib-metadata==2.0.0
 kombu==5.0.2
-Pillow==7.2.0
 prompt-toolkit==3.0.8
 pytz==2020.1
 redis==3.5.3
