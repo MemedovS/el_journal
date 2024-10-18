@@ -36,7 +36,6 @@ class Grade(models.Model):
 class RatingItemStatus(models.Model):
     """Справочник статусов оценок: обычная, годовая, четверть, отменено."""
     name = models.CharField('Статус оценки', max_length=15)
-
     def __str__(self):
         return self.name
 

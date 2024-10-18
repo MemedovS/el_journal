@@ -45,7 +45,7 @@ class ScoreLessonListView(LoginRequiredMixin, TeacherLessonPermissionsMixin, Sco
         self.group = get_object_or_404(group_student, id=self.kwargs['group_id'])
         self.lesson = get_object_or_404(Lesson, id=self.kwargs['lesson_id'])
         queryset = Score.objects.select_related('group', 'lesson')\
-            .filter(group_id=self.kwargs['group_id'], lesson_id=self.kwargs['lesson_id'])
+            .filter(group_id=self.kwargs['group_id'], lesson_id=self.kwargs['lesson_id'])#'score_status' добавил
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):

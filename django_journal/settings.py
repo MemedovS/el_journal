@@ -1,6 +1,5 @@
 import os
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'unsafe-secret-key')
@@ -8,7 +7,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'unsafe-secret-key')
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
-
 
 INSTALLED_APPS = [
     'accounts',
@@ -25,7 +23,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 ]
 
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -38,7 +35,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
 }
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -71,14 +67,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'django_journal.wsgi.application'
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -94,7 +88,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 LANGUAGE_CODE = 'ru'
 
@@ -120,18 +113,16 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 TEACHER = 'teacher'
 STUDENT = 'student'
 USER_STATUS_CHOICES = [(TEACHER, 'Учитель'), (STUDENT, 'Студент')]
-SCORE_CHOICES = [(5, '5'), (4, '4'), (3, '3'), (2, '2')]
+SCORE_CHOICES = [(10, '10'), (9, '9'), (8, '8'), (7, '7'), (6, '6'), (5, '5'), (4, '4'), (3, '3'), (2, '2')]
 GENDER_CHOICES = [('М', 'М'), ('Ж', 'Ж')]
 
 AUTH_USER_MODEL = 'people.User'
 
 STATIC_URL = '/static/'
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -146,6 +137,3 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'diler-78@mail.ru'  # ваш адрес электронной почты
 EMAIL_HOST_PASSWORD = 'DxdrCfyHEV3FXhjHMZZJ'  # ваш пароль от почты
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # адрес отправителя по умолчанию
-
-
-

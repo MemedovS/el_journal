@@ -1,4 +1,6 @@
+
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Вход в систему{% endblock %}
 
@@ -7,23 +9,57 @@
 {% endblock %}
 
 {% block content %}
+    <style>
+        html, body {
+            height: 100%; /* Гарантируем высоту для всего окна */
+            margin: 0;
+            padding: 0;
+        }
 
-        <div class="content account">
-            <div class="login-form">
-                <h3>Авторизация:</h3>
-                {% if form.errors %}
-                    <p>Что то пошло не так.</p>
-                {% endif %}
+        /* Стиль для фона страницы */
+        body {
+            background-image: url("{% static 'img/25.jpg' %}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh;
+        }
 
-                <form action="{% url 'login' %}" method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <input type="hidden" name="next" value="{{ next }}" />
-                    <button type="submit">Вход</button>
-                    <p><a class="forgot" href="{% url 'password_reset' %}">Забыли пароль?</a></p>
-                </form>
+        /* Полупрозрачный фон для login-form */
+        .login-form {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
 
-            </div>
+        /* Стиль для центровки содержимого */
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Занимаем всю высоту окна */
+            padding: 20px;
+        }
+    </style>
+
+    <div class="content">
+        <div class="login-form">
+            <h3>Авторизация:</h3>
+            {% if form.errors %}
+                <p>Что-то пошло не так.</p>
+            {% endif %}
+
+            <form action="{% url 'login' %}" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="hidden" name="next" value="{{ next }}" />
+                <button type="submit">Вход</button>
+                <p><a class="forgot" href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+            </form>
         </div>
-
+    </div>
 {% endblock %}
