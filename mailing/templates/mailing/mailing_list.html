@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Список рассылок{% endblock %}
+{% block title %}Poçt siyahısı{% endblock %}
 
 {% block content %}
 
@@ -12,15 +12,15 @@
         </ul>
     {% endif %}
 
-    <h1>Список рассылок</h1>
-    <p><a class="btn btn-success" href="{% url 'mailing_create' %}">Создать новую рассылку</a></p>
+    <h1>Poçt siyahısı</h1>
+    <p><a class="btn btn-success" href="{% url 'mailing_create' %}">Yeni xəbər bülleteni yaradın</a></p>
     <table class="table-journal">
         <thead>
         <tr>
             <th>№</th>
-            <th>Название</th>
-            <th>Заголовок</th>
-            <th>Дата создания</th>
+            <th>Adı</th>
+            <th>Başlıq</th>
+            <th>Yaradılma tarixi</th>
         </tr>
         </thead>
         <tbody>
@@ -38,7 +38,7 @@
                 <td><p>{{ mailing.created }}</p></td>
             </tr>
         {% empty %}
-            <p>Нет ни одной рассылки</p>
+            <p>Poçt göndərişləri yoxdur</p>
         {% endfor %}
         </tbody>
     </table>

@@ -2,10 +2,10 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
-
+from django.utils import timezone
 from django_journal.settings import SCORE_CHOICES, STUDENT, TEACHER
 from people.models import Student, Teacher
-
+import pytz
 
 class Lesson(models.Model):
     """Справочник всех уроков в школе."""
@@ -22,7 +22,7 @@ class Lesson(models.Model):
 class Grade(models.Model):
     """Справочник всех существующих абравиатур классов."""
     number = models.SmallIntegerField('Цифра')
-    symbol = models.CharField('Символ', max_length=1)
+    symbol = models.CharField('Символ', max_length=20)
     lessons = models.ManyToManyField(Lesson, related_name='grade', verbose_name='Уроки класса')
 
     def __str__(self):

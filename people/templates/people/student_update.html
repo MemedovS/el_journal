@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Редактировать ученика{% endblock %}
+{% block title %}Tələbəni redaktə et{% endblock %}
 
 {% block content %}
-    <h1>Редактировать ученика</h1>
+    <h1>Tələbəni redaktə et</h1>
 
     {% if messages %}
         <ul class="messages">
@@ -20,29 +20,29 @@
             <div id="left-side">
 
                <p>
-                    <label for="{{ form.first_name.id_for_label }}">Имя:</label> <br>
+                    <label for="{{ form.first_name.id_for_label }}">Ad:</label> <br>
                     {{ form.first_name }}
                     {{ form.first_name.errors }}
                 </p>
                 <p>
-                    <label for="{{ form.last_name.id_for_label }}">Фамилия:</label> <br>
+                    <label for="{{ form.last_name.id_for_label }}">SoyAD:</label> <br>
                     {{ form.last_name }}
                     {{ form.last_name.errors }}
                 </p>
 
                 <p>
-                    <label for="{{ form.middle_name.id_for_label }}">Отчество:</label> <br>
+                    <label for="{{ form.middle_name.id_for_label }}">AtaAdı:</label> <br>
                     {{ form.middle_name }}
                     {{ form.middle_name.errors }}
                 </p>
                 <p>
-                    <label for="{{ form.birth_date.id_for_label }}">Дата рождения:</label> <br>
+                    <label for="{{ form.birth_date.id_for_label }}">Doğum tarixi:</label> <br>
                     {{ form.birth_date }}
                     {{ form.birth_date.errors }}
                 </p>
 
                  <p>
-                    <label for="{{ form.sex.id_for_label }}">Пол:</label> <br>
+                    <label for="{{ form.sex.id_for_label }}">Jinsiət:</label> <br>
                     {{ form.sex }}
                     {{ form.sex.errors }}
                 </p>
@@ -53,20 +53,20 @@
 
             <div id="right-side">
                 <p>
-                    <label for="{{ form.description.id_for_label }}">Характеристика:</label> <br>
+                    <label for="{{ form.description.id_for_label }}">Xarakterik:</label> <br>
                     {{ form.description }}
                     {{ form.description.errors }}
                 </p>
 
-                <p style="color: #606479; font-size: 14px">Фотография ученика:</p>
+                <p style="color: #606479; font-size: 14px">Tələbənin şəkili:</p>
                 <p>
                     <img id="avatar" align="left" class="user-avatar-mini" src="/media/{{ form.photo.value }}" alt="">
-                    <label class="label-file" for="{{ form.photo.id_for_label }}">Загрузить фото</label> <br>
+                    <label class="label-file" for="{{ form.photo.id_for_label }}">Şəkili yuklə</label> <br>
                     <input type="file" name="photo" class="input-file" accept="image/*" id="id_photo"
                            onchange="document.getElementById('upload-file-info').innerText = this.value;
                            document.getElementById('avatar').src = '';">
                     <br>
-                    <span class='label-info' id="upload-file-info">Текущее фото: {{ form.photo.value }}</span>
+                    <span class='label-info' id="upload-file-info">Olan şəkil: {{ form.photo.value }}</span>
                     {{ form.photo.errors }}
                 </p>
 
@@ -74,7 +74,7 @@
             </div>
 
             <div id="contact">
-                <input type="submit" class="save_button" value="Сохранить">
+                <input type="submit" class="save_button" value="Yada saxla">
             </div>
 
         </div>

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load filters %}
 
-{% block title %}Журнал класс {{ group.grade }} {% endblock %}
+{% block title %}Sinif jurnalı {{ group.grade }} {% endblock %}
 
 {% block content %}
-    <h1>Классный журнал - {{ group.grade }} - {{ lesson }}</h1>
+    <h1>Sinif jurnalı - {{ group.grade }} - {{ lesson }}</h1>
 
     <form action="{% url 'score_lesson' group.id lesson.id %}" method="get">
         <label> С
@@ -13,7 +13,7 @@
         <label> по
             <input class="input-date" name="end-date" type="date" value="{{ date_period|last|date:"Y-m-d" }}">
         </label>
-        <button class="btn-filter btn-filter-purple" type="submit">Применить</button>
+        <button class="btn-filter btn-filter-purple" type="submit">Qəbul edin</button>
     </form>
 
     <p></p>
@@ -29,29 +29,35 @@
 
         <tbody>
         {% for student in students %}
-            <tr>
-                <td><a href="{{ student.student.get_absolute_url }}">{{ student.get_full_name }}</a></td>
-                {% for date in date_period %}
-                    {% with score_id_tuple=scores_dict|get_dict_value:date|get_dict_value:student.id %}
-                        <td>
-
-                            {% if score_id_tuple|get_list_value:0 == 0 %}
-                                <a ondblclick="showSelectBox()" href="#"
-                                   data-student="{{ student.id }}"
-                                   data-scoredate="{{ date|date:"Y-m-d" }}"
-                                   data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</a>
-                            {% else %}
-                                <a ondblclick="showSelectBox()" href="#"
-                                   data-student="{{ student.id }}"
-                                   data-scoredate="{{ date|date:"Y-m-d" }}"
-                                   data-scoreid="{{ score_id_tuple|get_list_value:1 }}">{{ score_id_tuple|get_list_value:0 }}</a>
-                            {% endif %}
-
-                        </td>
-                    {% endwith %}
-                {% endfor %}
-            </tr>
+    <tr>
+        <td><a href="{{ student.student.get_absolute_url }}">{{ student.get_full_name }}</a></td>
+        {% for date in date_period %}
+            {% with score_id_tuple=scores_dict|get_dict_value:date|get_dict_value:student.id %}
+                <td>
+                    <!-- Если оценка равна -1, показываем "НБ" -->
+                    {% if score_id_tuple|get_list_value:0 == -1 %}
+                        <a ondblclick="showSelectBox()" href="#"
+                           data-student="{{ student.id }}"
+                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">q</a>
+                    <!-- Если оценка равна 0, показываем "--" -->
+                    {% elif score_id_tuple|get_list_value:0 == 0 %}
+                        <a ondblclick="showSelectBox()" href="#"
+                           data-student="{{ student.id }}"
+                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</a>
+                    <!-- В остальных случаях показываем оценку -->
+                    {% else %}
+                        <a ondblclick="showSelectBox()" href="#"
+                           data-student="{{ student.id }}"
+                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">{{ score_id_tuple|get_list_value:0 }}</a>
+                    {% endif %}
+                </td>
+            {% endwith %}
         {% endfor %}
+    </tr>
+{% endfor %}
 
     </tbody>
     </table>
@@ -96,6 +102,12 @@
 
 
         function getScoreParams(targetLink) {
+            let score_value = targetLink.innerHTML.trim(); // Добавлено trim()
+            // Если значение "НБ", передаем -1
+            if (score_value === "q") {
+                score_value = "-1";
+            }
+
             return {
                 group: {{ group.id }},
                 lesson: {{ lesson.id }}, //scores.first.lesson.id
@@ -103,7 +115,7 @@
                 student: targetLink.dataset.student,
                 score_status: 1,
                 score_id: targetLink.dataset.scoreid,
-                score_value: targetLink.innerHTML,
+                score_value: score_value,//innerHTML
                 score_date: targetLink.dataset.scoredate,
             }
         }
@@ -118,21 +130,36 @@
             }
         }
 
-
-        function showSelectBox()
-        {
-            const selectBoxOptions = {" ": "", " 1": "1", " 2": "2", " 3": "3", " 4": "4", " 5": "5", " 6": "6", " 7": "7", " 8": "8", " 9": "9", "10": "10"}
+        function showSelectBox() {
+            const selectBoxOptions = {" ": "", "q": "-1", "1": "1", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7", "8": "8", "9": "9", "10": "10"};
 
             let selectBox = document.createElement("select");
             let targetLink = event.target;
             let scoreParams = getScoreParams(targetLink);
 
+            //Если оценка уже установлена и её ID не пустое, запретить изменения
+            if (targetLink.dataset.scoreid && targetLink.dataset.scoreid !== '0') {
+                return; // Не позволяем изменить уже выставленную оценку
+    }
+
             for (let key in selectBoxOptions) {
                 selectBox.options.add(new Option(key, selectBoxOptions[key]));
             }
-            selectBox.selectedIndex = scoreParams["score_value"]-1;
-            selectBox.onkeypress = function() {showLink(event, targetLink, scoreParams);}
+
+            // Если значение "-1", устанавливаем "НБ"
+            if (scoreParams["score_value"].trim === "-1") {
+                selectBox.value = "-1"; // Устанавливаем как "НБ"
+            } else {
+                selectBox.value = scoreParams["score_value"]-1;
+            }
+
+            selectBox.onkeypress = function() {
+                showLink(event, targetLink, scoreParams);
+            };
             targetLink.parentNode.replaceChild(selectBox, targetLink);
         }
+
+
+
     </script>
 {% endblock %}

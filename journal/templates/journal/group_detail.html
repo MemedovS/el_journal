@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Журнал класс {{ group.grade }} {% endblock %}
+{% block title %} Sinf Jurnalı {{ group.grade }} {% endblock %}
 
 {% block content %}
-    <h1>Классный журнал - {{ group.grade }}</h1>
+    <h1>Sinif jurnalı - {{ group.grade }}</h1>
 
-    <h2>Предметы {{ group.grade }} класса</h2>
+    <h2> {{ group.grade }} Sinif fənləri</h2>
     <table class="table-journal">
         <thead>
             <tr>
                 <th>№</th>
-                <th>Предмет</th>
+                <th>Fənn</th>
             </tr>
         </thead>
         <tbody>
@@ -23,17 +23,17 @@
         </tbody>
     </table>
 
-    <h2>Список учеников {{ group.grade }} класса</h2>
-    <a class="btn btn-success" href="{% url 'student_add' %}">+ Добавить ученика</a>
+    <h2> {{ group.grade }} Sinifin tələbələtinin siyahısı</h2>
+    <a class="btn btn-success" href="{% url 'student_add' %}">+ Tələbə əlavə et</a>
     <table class="table-journal">
         <thead>
             <tr>
                 <th>№</th>
-                <th>Фото</th>
-                <th>ФИО</th>
-                <th>Дата рождения</th>
-                <th>Характеристика</th>
-                <th>Редактировать</th>
+                <th>Şəkil</th>
+                <th>FİO</th>
+                <th>Doğum tarixi</th>
+                <th>Xarakteristika</th>
+                <th>Düzəliş et</th>
             </tr>
         </thead>
         <tbody>
@@ -53,7 +53,7 @@
                     <td>{{ student.birth_date|date:'d.m.Y' }}</td>
                     <td>{{ student.description }}</td>
                     <td>
-                        <a class="btn btn-dark" href="{% url 'student_update' student.id %}">Редактировать</a>
+                        <a class="btn btn-dark" href="{% url 'student_update' student.id %}">Düzəliş et</a>
                     </td>
                 </tr>
             {% endfor %}

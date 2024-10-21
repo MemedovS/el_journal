@@ -82,7 +82,7 @@ class StudentCreateView(LoginRequiredMixin, TeacherPermissionsMixin, SuccessMess
     form_class = UserCreateForm
     template_name = 'people/student_create.html'
     success_url = reverse_lazy('student_add')
-    success_message = 'Ученик усешно добавлен.'
+    success_message = 'Tələbə əlavə olundu.'
 
     def get_context_data(self, **kwargs):
         data = super(StudentCreateView, self).get_context_data(**kwargs)
@@ -116,7 +116,7 @@ class StudentUpdateView(LoginRequiredMixin, TeacherPermissionsMixin, SuccessMess
     queryset = User.objects.filter(user_status=STUDENT)
     form_class = UserUpdateForm
     template_name = 'people/student_update.html'
-    success_message = 'Данные ученика успешно обновлены.'
+    success_message = 'Tələbənin məlumatları uğurla əlavə olundu.'
 
     def post(self, request, *args, **kwargs):
         form = UserUpdateForm(self.request.POST)

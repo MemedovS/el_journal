@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Создать рассылку{% endblock %}
+{% block title %}Xəbər bülleteni yaradın{% endblock %}
 
 {% block content %}
 
-    <h1>Создать рассылку</h1>
-    <p>Рассылка помогает сообщить родителям или ученикам о предстоящих событиях
-        (школьных собраниях, мероприятиях, акциях, проишествиях).<br>
-        Рассылка отправляется на указанные контакты в профиле учащегося.</p>
+    <h1>Xəbər bülleteni yaradın</h1>
+    <p>Bülleten valideynlərə və ya tələbələrə qarşıdan gələn hadisələr
+        (məktəb görüşləri, tədbirlər, promosyonlar, hadisələr) haqqında məlumat verməyə kömək edir..<br>
+        Bülleten tələbə profilində göstərilən kontaktlara göndərilir.</p>
 
     <form method="post" action="">
         {% csrf_token %}
@@ -15,15 +15,15 @@
         <p>{{ form.subject }}</p>
         <p>{{ form.message }}</p>
 
-    <h3>Выберите получателей рассылки:</h3>
+    <h3>Poçt alıcılarını seçin:</h3>
         <table class="table-journal">
             <thead>
             <tr>
                 <th>№</th>
-                <th>Фото</th>
-                <th>ФИО</th>
-                <th>Дата рождения</th>
-                <th>Характеристика</th>
+                <th>Şəkil</th>
+                <th>FİO</th>
+                <th>Doğum tarixi</th>
+                <th>Xarakterik</th>
             </tr>
             </thead>
             <tbody>
@@ -49,7 +49,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <input class="btn btn-success" type="submit" value="Сохранить и отправить">
+        <input class="btn btn-success" type="submit" value="Saxla və göndər">
     </form>
 
 {% endblock %}

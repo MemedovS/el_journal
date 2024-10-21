@@ -8,7 +8,7 @@ class MailingCreateForm(forms.ModelForm):
         model = Mailing
         fields = ['name', 'subject', 'message', 'to_users']
         widgets = {
-            'name': forms.TextInput(attrs={'placeholder': 'Название рассылки'}),
-            'subject': forms.TextInput(attrs={'placeholder': 'Заголовок сообщения'}),
-            'message': forms.Textarea(attrs={'placeholder': 'Текст сообщения'}),
+            'name': forms.TextInput(attrs={'placeholder': 'Poçt adı'}),
+            'subject': forms.TextInput(attrs={'placeholder': 'Mesajın başlığı'}),
+            'message': forms.Textarea(attrs={'placeholder': 'Mesaj mətni'}),
         }

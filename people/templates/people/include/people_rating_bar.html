@@ -1,6 +1,6 @@
 <div class="profile-statistic">
     <div class="reviews-container">
-        <h2>Статистика оценок</h2>
+        <h2>Reytinq statistikası</h2>
 
         {% for score, count_score in rating.items %}
         <div class="review">
@@ -17,7 +17,7 @@
     </div>
 
     <div class="flex-wrapper reviews-container">
-        <h2>Мой рейтинг</h2>
+        <h2>Mənim reytinqim</h2>
         <div class="single-chart">
             <svg viewBox="0 0 36 36" class="circular-chart orange">
                 <defs>
@@ -55,13 +55,23 @@
     }
 
     progressDone.forEach(progress => {
-        let dataDone = progress.getAttribute('data-done')
-        progress.setAttribute('data-done', getPercent(dataDone, {{ total_scores.sum_count | default:1 }}))
+        let dataDone = progress.getAttribute('data-done');
+
+        // Проверка на значение -1 и добавление соответствующего класса
+        if (dataDone === "-1") {
+            progress.classList.add('progress-done-color--1'); // Специальный класс для оценки -1 (НБ)
+        } else {
+            progress.classList.add('progress-done-color-' + dataDone); // Классы для других оценок
+        }
+
+        // Рассчет ширины прогресс-бара
+        progress.setAttribute('data-done', getPercent(dataDone, {{ total_scores.sum_count | default:1 }}));
         progress.style.width = progress.getAttribute('data-done') + '%';
     });
 
     scoreCount.forEach(score => {
         let value = score.innerHTML;
         score.innerHTML = value + ' (' + getPercent(value, {{total_scores.sum_count |default:1}})+')%';
-    });
+});
+
 </script>

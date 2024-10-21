@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %} Личный кабинет {% endblock %}
+{% block title %} Şəxsi hesab {% endblock %}
 
 {% block content %}
-    <h1>Оценки</h1>
+    <h1>Qiymətlər</h1>
     <form action="{% url 'student_lk' %}" method="get">
         <label> С
             <input class="input-date" name="start-date" type="date" value="{{ date_period|first|date:"Y-m-d" }}" >
@@ -12,14 +12,14 @@
         <label> по
             <input class="input-date" name="end-date" type="date" value="{{ date_period|last|date:"Y-m-d" }}">
         </label>
-        <button class="btn-filter btn-filter-purple" type="submit">Применить</button>
+        <button class="btn-filter btn-filter-purple" type="submit">Qəbul et</button>
     </form>
     <p></p>
 
     <table class="table-journal">
         <thead>
             <tr>
-                <th>Предметы</th>
+                <th>Fənlər</th>
                  {% for date in date_period %}
                      <th>{{ date|date:"d.m.Y" }}</th>
                  {% endfor %}
@@ -33,7 +33,9 @@
                 {% for date in date_period %}
                     {% with score_id_tuple=scores_dict|get_dict_value:date|get_dict_value:lesson.id %}
                         <td>
-                            {% if score_id_tuple|get_list_value:0 == 0 %}
+                            {% if score_id_tuple|get_list_value:0 == -1 %}
+                                <span data-scoreid="{{ score_id_tuple|get_list_value:1 }}">q</span>
+                            {%elif score_id_tuple|get_list_value:0 == 0 %}
                                 <span data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</span>
                             {% else %}
                                 <span data-scoreid="{{ score_id_tuple|get_list_value:1 }}">

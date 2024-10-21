@@ -10,16 +10,16 @@ class UserCreateForm(forms.ModelForm):
         model = User
         fields = ['username', 'email', 'password', 'first_name', 'last_name', 'middle_name',
                   'birth_date', 'sex', 'photo', 'description']
-        widgets = {'username': forms.TextInput(attrs={'placeholder': 'Имя пользователя'}),
+        widgets = {'username': forms.TextInput(attrs={'placeholder': 'Abunəci adı'}),
                    'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
-                   'password': forms.PasswordInput(attrs={'placeholder': 'Пароль'}),
-                   'first_name': forms.TextInput(attrs={'placeholder': 'Имя'}),
-                   'last_name': forms.TextInput(attrs={'placeholder': 'Фамилия'}),
-                   'middle_name': forms.TextInput(attrs={'placeholder': 'Отчество'}),
-                   'birth_date': forms.DateInput(attrs={'placeholder': 'Дата рождения', 'type': 'date'}),
-                   'sex': forms.Select(attrs={'placeholder': 'Пол'}),
+                   'password': forms.PasswordInput(attrs={'placeholder': 'Şifrə'}),
+                   'first_name': forms.TextInput(attrs={'placeholder': 'Ad'}),
+                   'last_name': forms.TextInput(attrs={'placeholder': 'SoyAd'}),
+                   'middle_name': forms.TextInput(attrs={'placeholder': 'AtaAdı'}),
+                   'birth_date': forms.DateInput(attrs={'placeholder': 'Doğum tarixi', 'type': 'date'}),
+                   'sex': forms.Select(attrs={'placeholder': 'cins'}),
                    'photo': forms.FileInput(attrs={'class': 'input-file'}),
-                   'description': forms.Textarea(attrs={'placeholder': 'Характеристика', 'rows': 5, 'cols': 30}),
+                   'description': forms.Textarea(attrs={'placeholder': 'Xarakterik', 'rows': 5, 'cols': 30}),
                    }
 
     def save(self, commit=True):
@@ -36,14 +36,14 @@ class UserUpdateForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'middle_name',
                   'sex', 'birth_date', 'photo', 'description']
-        widgets = {'first_name': forms.TextInput(attrs={'placeholder': 'Имя'}),
-                   'last_name': forms.TextInput(attrs={'placeholder': 'Фамилия'}),
-                   'middle_name': forms.TextInput(attrs={'placeholder': 'Отчество'}),
+        widgets = {'first_name': forms.TextInput(attrs={'placeholder': 'Ad'}),
+                   'last_name': forms.TextInput(attrs={'placeholder': 'SoyAd'}),
+                   'middle_name': forms.TextInput(attrs={'placeholder': 'AtaAdı'}),
                    'birth_date': forms.DateInput(attrs={'type': 'date', 'data-date-format': 'yyyy-mm-dd'},
                                                  format=('%Y-%m-%d')),
-                   'sex': forms.Select(attrs={'placeholder': 'Пол'}),
+                   'sex': forms.Select(attrs={'placeholder': 'cins'}),
                    'photo': forms.FileInput(attrs={'class': 'input-file'}),
-                   'description': forms.Textarea(attrs={'placeholder': 'Характеристика', 'rows': 5, 'cols': 40}),
+                   'description': forms.Textarea(attrs={'placeholder': 'Xarakterik', 'rows': 5, 'cols': 40}),
                    }
 
 
@@ -60,9 +60,9 @@ class ContactForm(forms.ModelForm):
     class Meta:
         model = Contact
         fields = ['phone1', 'phone2', 'phone3']
-        widgets = {'phone1': forms.TextInput(attrs={'placeholder': 'Основной телефон'}),
-                   'phone2': forms.TextInput(attrs={'placeholder': 'Дополнительный телефон'}),
-                   'phone3': forms.TextInput(attrs={'placeholder': 'Дополнительный телефон №2'}),
+        widgets = {'phone1': forms.TextInput(attrs={'placeholder': 'Əsas telefon nömrəsi'}),
+                   'phone2': forms.TextInput(attrs={'placeholder': 'Əlavə telefon nömrəsi'}),
+                   'phone3': forms.TextInput(attrs={'placeholder': 'Əlavə telefon nömrəsi №2'}),
                    }
 
 

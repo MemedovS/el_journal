@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Новый ученик{% endblock %}
+{% block title %}Yeni tələbə{% endblock %}
 
 {% block content %}
-    <h1>Новый ученик</h1>
+    <h1>Yeni tələbə</h1>
 
     {% if messages %}
         <ul class="messages">
@@ -46,7 +46,7 @@
                     {{ form.middle_name.errors }}
                 </p>
                 <p>
-                    <label for="{{ form.birth_date.id_for_label }}">Дата рождения:</label> <br>
+                    <label for="{{ form.birth_date.id_for_label }}">Doğum tarixi:</label> <br>
                     {{ form.birth_date }}
                     {{ form.birth_date.errors }}
                 </p>
@@ -63,9 +63,9 @@
                     {{ form.description }}
                     {{ form.description.errors }}
                 </p>
-                <p style="color: #606479; font-size: 14px">Фотография ученика:</p>
+                <p style="color: #606479; font-size: 14px">Tələbənin şəkili:</p>
                 <p>
-                    <label class="label-file" for="{{ form.photo.id_for_label }}">Загрузить фото</label> <br>
+                    <label class="label-file" for="{{ form.photo.id_for_label }}">Şəkili yüklə</label> <br>
                     <input type="file" name="photo" class="input-file" accept="image/*" id="id_photo"
                            onchange="document.getElementById('upload-file-info').innerText = this.value;">
                     <br>
@@ -73,7 +73,7 @@
                     {{ form.photo.errors }}
                 </p>
                 <p>
-                    <label for="{{ student_form.group.id_for_label }}">Ученик класса:</label> <br>
+                    <label for="{{ student_form.group.id_for_label }}">Sinif Tələbəsi:</label> <br>
                     {{ student_form.group }}
                     {{ student_form.group.errors }}
                 </p>
@@ -92,7 +92,7 @@
             </div>
 
             <div id="contact">
-                <input type="submit" class="save_button" value="Сохранить">
+                <input type="submit" class="save_button" value="Yada saxla">
             </div>
 
         </div>

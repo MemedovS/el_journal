@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Доступ запрещен {{ user.get_full_name }}{% endblock %}
+
+
+{% block content %}
+    <body>
+    <div class="access-denied-container">
+        <h1>Sizin bu səhifəyə girişiniz yoxdur</h1>
+        <h2>Bunun xəta olduğunu düşünürsünüzsə, administratorunuzla əlaqə saxlayın.</h2>
+        <a class="button" href="/">Əsasa qayıt</a>
+    </div>
+    </body>
+
+{% endblock %}
