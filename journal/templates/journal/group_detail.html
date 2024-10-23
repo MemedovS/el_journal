@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %} Sinf Jurnalı {{ group.grade }} {% endblock %}
+{% block title %} Fakultə jurnalı {{ group.grade }} {% endblock %}
 
 {% block content %}
-    <h1>Sinif jurnalı - {{ group.grade }}</h1>
+    <h1>Fakultə jurnalı - {{ group.grade }}</h1>
 
     <h2> {{ group.grade }} Sinif fənləri</h2>
     <table class="table-journal">
@@ -23,7 +23,7 @@
         </tbody>
     </table>
 
-    <h2> {{ group.grade }} Sinifin tələbələtinin siyahısı</h2>
+    <h2> {{ group.grade }} Fakultənin tələbələtinin siyahısı</h2>
     <a class="btn btn-success" href="{% url 'student_add' %}">+ Tələbə əlavə et</a>
     <table class="table-journal">
         <thead>

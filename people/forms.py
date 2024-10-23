@@ -17,7 +17,7 @@ class UserCreateForm(forms.ModelForm):
                    'last_name': forms.TextInput(attrs={'placeholder': 'SoyAd'}),
                    'middle_name': forms.TextInput(attrs={'placeholder': 'AtaAdı'}),
                    'birth_date': forms.DateInput(attrs={'placeholder': 'Doğum tarixi', 'type': 'date'}),
-                   'sex': forms.Select(attrs={'placeholder': 'cins'}),
+                   'sex': forms.Select(attrs={'placeholder': 'cinsi'}),
                    'photo': forms.FileInput(attrs={'class': 'input-file'}),
                    'description': forms.Textarea(attrs={'placeholder': 'Xarakterik', 'rows': 5, 'cols': 30}),
                    }
@@ -41,7 +41,7 @@ class UserUpdateForm(forms.ModelForm):
                    'middle_name': forms.TextInput(attrs={'placeholder': 'AtaAdı'}),
                    'birth_date': forms.DateInput(attrs={'type': 'date', 'data-date-format': 'yyyy-mm-dd'},
                                                  format=('%Y-%m-%d')),
-                   'sex': forms.Select(attrs={'placeholder': 'cins'}),
+                   'sex': forms.Select(attrs={'placeholder': 'cinsi'}),
                    'photo': forms.FileInput(attrs={'class': 'input-file'}),
                    'description': forms.Textarea(attrs={'placeholder': 'Xarakterik', 'rows': 5, 'cols': 40}),
                    }

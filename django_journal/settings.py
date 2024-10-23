@@ -122,7 +122,7 @@ TEACHER = 'teacher'
 STUDENT = 'student'
 USER_STATUS_CHOICES = [(TEACHER, 'Учитель'), (STUDENT, 'Студент')]
 SCORE_CHOICES = [(10, '10'), (9, '9'), (8, '8'), (7, '7'), (6, '6'), (5, '5'), (4, '4'), (3, '3'), (2, '2'),('-1', 'q')]
-GENDER_CHOICES = [('М', 'М'), ('Ж', 'Ж')]
+GENDER_CHOICES = [('K', 'K'), ('Q', 'Q')]
 
 AUTH_USER_MODEL = 'people.User'
 

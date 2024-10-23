@@ -1,28 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Siniflərin siyahısı{% endblock %}
+{% block title %}Fakultələrin siyahısı{% endblock %}
 
 {% block content %}
-    <h1>Tədris siniflərinin qiymətləndirmə siyahısı</h1>
+    <h1>Список оценок по факультетам</h1>
     <table class="table-journal">
         <thead>
             <tr>
                 <th>№</th>
-                <th>Sinif</th>
+                <th>Fakultə</th>
                 <th>Rəhbər</th>
             </tr>
         </thead>
         <tbody>
             {% for user in users_teachers %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>
-                        <a href="{{ user.teacher.group_manager.get_absolute_url }}">
-                            {{ user.teacher.group_manager.grade }}
-                        </a>
-                    </td>
-                    <td><a href="{{ user.teacher.get_absolute_url }}">{{ user.get_full_name }}</a></td>
-                </tr>
+                {% if user.teacher.group_manager %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <a href="{{ user.teacher.group_manager.get_absolute_url }}">
+                                {{ user.teacher.group_manager.grade }}
+                            </a>
+                        </td>
+                        <td><a href="{{ user.teacher.get_absolute_url }}">{{ user.get_full_name }}</a></td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>

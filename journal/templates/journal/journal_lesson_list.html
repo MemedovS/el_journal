@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load filters %}
 
-{% block title %}Sinif jurnalı {{ group.grade }} {% endblock %}
+{% block title %}Fakultə jurnalı {{ group.grade }} {% endblock %}
 
 {% block content %}
-    <h1>Sinif jurnalı - {{ group.grade }} - {{ lesson }}</h1>
+    <h1>Fakultə jurnalı  - {{ group.grade }} - {{ lesson }}</h1>
 
     <form action="{% url 'score_lesson' group.id lesson.id %}" method="get">
         <label> С
@@ -45,7 +45,7 @@
                         <a ondblclick="showSelectBox()" href="#"
                            data-student="{{ student.id }}"
                            data-scoredate="{{ date|date:"Y-m-d" }}"
-                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</a>
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">i</a>
                     <!-- В остальных случаях показываем оценку -->
                     {% else %}
                         <a ondblclick="showSelectBox()" href="#"

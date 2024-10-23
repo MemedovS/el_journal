@@ -22,7 +22,7 @@ class Lesson(models.Model):
 class Grade(models.Model):
     """Справочник всех существующих абравиатур классов."""
     number = models.SmallIntegerField('Цифра')
-    symbol = models.CharField('Символ', max_length=20)
+    symbol = models.CharField('Символ', max_length=50)
     lessons = models.ManyToManyField(Lesson, related_name='grade', verbose_name='Уроки класса')
 
     def __str__(self):
