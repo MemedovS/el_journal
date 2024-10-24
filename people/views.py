@@ -72,7 +72,7 @@ class StudentLkDetailView(LoginRequiredMixin, StudentPermissionsMixin, ScoreJour
                                               sum_score=Avg('score'),
                                               sum_score_percent=Avg('score')*10)
 
-        # student_rating = {5: 0, 4: 0, 3: 0, 2: 0}
+
         student_rating = {10: 0, 9: 0, 8: 0, 7: 0, 6: 0, 5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
         for item in count_scores:
             student_rating[item['score']] = item['count_score']
@@ -154,3 +154,4 @@ class StudentUpdateView(LoginRequiredMixin, TeacherPermissionsMixin, SuccessMess
     def get_success_url(self):
         return reverse_lazy('student_update', kwargs={'pk': self.kwargs['pk']})
 
+#####

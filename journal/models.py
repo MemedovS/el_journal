@@ -13,7 +13,13 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.name
+#
+    def calculate_final_score(self, student):
+        scores = Score.objects.filter(student=student, lesson=self)
+        # Пример: среднее арифметическое всех оценок
+        return scores.aggregate(Avg('score'))['score__avg']
 
+ #
     class Meta:
         verbose_name = 'предмет'
         verbose_name_plural = 'Справочник предметов'
@@ -73,6 +79,8 @@ class Score(models.Model):
                                 null=True, limit_choices_to={'user_status': TEACHER}, verbose_name='Учитель')
     score = models.SmallIntegerField(choices=SCORE_CHOICES, verbose_name='Оценка')
     score_status = models.ForeignKey(RatingItemStatus, on_delete=models.CASCADE, verbose_name='Статус оценки')
+#
+    is_exam = models.BooleanField(default=False, verbose_name='Экзаменационная оценка')
     created = models.DateField(verbose_name='Дата создания')
     updated = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 

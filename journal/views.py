@@ -1,3 +1,11 @@
+import re
+import openpyxl
+from openpyxl.utils import get_column_letter
+from io import BytesIO
+from django.http import HttpResponse
+from datetime import datetime, timedelta
+
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
@@ -9,6 +17,7 @@ from django_journal.settings import TEACHER
 from people.models import User
 from .models import GroupStudent, Score, Lesson
 from utils.service import ScoreJournalMixin
+#
 
 
 class GroupStudentListView(LoginRequiredMixin, TeacherPermissionsMixin, ListView):
@@ -88,3 +97,81 @@ class AddScore(LoginRequiredMixin, TeacherLessonPermissionsMixin, View):
         else:
             Score.objects.get(id=score_id).delete()
             return JsonResponse({'status': 'ok'})
+#########
+
+
+
+
+def export_scores_to_excel(request, group_id, lesson_id):
+    # Получаем класс и предмет
+    group = GroupStudent.objects.get(id=group_id)
+    lesson = Lesson.objects.get(id=lesson_id)
+
+    # Создаем заголовок листа и заменяем недопустимые символы
+    sheet_title = f"{group.grade} - {lesson.name}"
+    sheet_title = re.sub(r'[\/:*?"<>|]', '-', sheet_title)  # Замена недопустимых символов на дефис
+
+    # Обрезаем заголовок листа до 31 символа
+    if len(sheet_title) > 31:
+        sheet_title = sheet_title[:31]
+
+    # Создаем новую книгу Excel и рабочий лист
+    workbook = openpyxl.Workbook()
+    worksheet = workbook.active
+    worksheet.title = sheet_title
+
+    # Устанавливаем заголовки для столбцов
+    worksheet["A1"] = "ФИО студента"
+
+    # Генерируем список всех дней в текущем месяце
+    start_date = datetime.now().replace(day=1)
+    end_date = start_date + timedelta(days=31)
+    end_date = end_date.replace(day=1) - timedelta(days=1)
+    date_period = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
+
+    # Добавляем даты в заголовки столбцов
+    for col_num, date in enumerate(date_period, start=2):
+        worksheet.cell(row=1, column=col_num, value=date.strftime('%Y-%m-%d'))
+
+    # Получаем список студентов в группе
+    students = User.objects.filter(student__group=group).order_by('last_name', 'first_name')
+
+    # Добавляем имена студентов и их оценки
+    for row_num, student in enumerate(students, start=2):
+        worksheet.cell(row=row_num, column=1, value=f"{student.get_full_name()}")
+
+        # Получаем оценки студента
+        scores = Score.objects.filter(group=group, lesson=lesson, student=student)
+
+        # Создаем словарь с оценками для быстрого доступа
+        score_dict = {score.created: score.score for score in scores}
+
+        # Заполняем оценки в соответствующие ячейки
+        for col_num, date in enumerate(date_period, start=2):
+            score_value = score_dict.get(date.date(), "--")  # Используем "--", если оценка отсутствует
+            if score_value == -1:
+                score_value = "q"
+            elif score_value == -2:
+                score_value = "İ"  # Заменяем -1 на НБif score_value == -1:
+
+            worksheet.cell(row=row_num, column=col_num, value=score_value)
+    # Настраиваем размеры столбцов
+    for col_num in range(1, worksheet.max_column + 1):
+        column_letter = get_column_letter(col_num)
+        worksheet.column_dimensions[column_letter].width = 20
+
+    # Создаем ответ с заголовком "Content-Disposition"
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    response["Content-Disposition"] = f'attachment; filename="{group.grade}-{lesson.name}.xlsx"'
+
+    # Сохраняем рабочую книгу в память и прикрепляем к ответу
+    with BytesIO() as buffer:
+        workbook.save(buffer)
+        buffer.seek(0)
+        response.write(buffer.getvalue())
+
+    return response
+
+

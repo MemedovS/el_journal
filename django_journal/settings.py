@@ -121,7 +121,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TEACHER = 'teacher'
 STUDENT = 'student'
 USER_STATUS_CHOICES = [(TEACHER, 'Учитель'), (STUDENT, 'Студент')]
-SCORE_CHOICES = [(10, '10'), (9, '9'), (8, '8'), (7, '7'), (6, '6'), (5, '5'), (4, '4'), (3, '3'), (2, '2'),('-1', 'q')]
+#SCORE_CHOICES = [(10, '10'), (9, '9'), (8, '8'), (7, '7'), (6, '6'), (5, '5'), (4, '4'), (3, '3'), (2, '2'),('-1', 'q')]
+SCORE_CHOICES = [(-1, 'НБ'), (0, 'İ')]+ [(i, str(i)) for i in range(1, 51)]
+
 GENDER_CHOICES = [('K', 'K'), ('Q', 'Q')]
 
 AUTH_USER_MODEL = 'people.User'

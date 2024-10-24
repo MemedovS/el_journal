@@ -35,6 +35,8 @@
                         <td>
                             {% if score_id_tuple|get_list_value:0 == -1 %}
                                 <span data-scoreid="{{ score_id_tuple|get_list_value:1 }}">q</span>
+                            {%elif score_id_tuple|get_list_value:0 == -2 %}
+                                <span data-scoreid="{{ score_id_tuple|get_list_value:1 }}">İ</span>
                             {%elif score_id_tuple|get_list_value:0 == 0 %}
                                 <span data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</span>
                             {% else %}

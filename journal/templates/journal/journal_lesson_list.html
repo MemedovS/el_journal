@@ -16,6 +16,11 @@
         <button class="btn-filter btn-filter-purple" type="submit">Qəbul edin</button>
     </form>
 
+    <!-- Кнопка для выгрузки в Excel -->
+    <form action="{% url 'export_scores_to_excel' group.id lesson.id %}" method="get">
+        <button type="submit" class="btn-export">Выгрузить оценки в Excel</button>
+    </form>
+
     <p></p>
     <table id="testTable" class="table-journal">
         <thead>
@@ -36,19 +41,24 @@
                 <td>
                     <!-- Если оценка равна -1, показываем "НБ" -->
                     {% if score_id_tuple|get_list_value:0 == -1 %}
-                        <a ondblclick="showSelectBox()" href="#"
+                        <a onmousedown="showSelectBox(event)" href="#"
                            data-student="{{ student.id }}"
                            data-scoredate="{{ date|date:"Y-m-d" }}"
                            data-scoreid="{{ score_id_tuple|get_list_value:1 }}">q</a>
                     <!-- Если оценка равна 0, показываем "--" -->
                     {% elif score_id_tuple|get_list_value:0 == 0 %}
-                        <a ondblclick="showSelectBox()" href="#"
+                        <a onmousedown="showSelectBox(event)" href="#"
                            data-student="{{ student.id }}"
                            data-scoredate="{{ date|date:"Y-m-d" }}"
-                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">i</a>
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</a>
+                    {% elif score_id_tuple|get_list_value:0 == -2 %}
+                        <a onmousedown="showSelectBox(event)" href="#"
+                           data-student="{{ student.id }}"
+                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">İ</a>
                     <!-- В остальных случаях показываем оценку -->
                     {% else %}
-                        <a ondblclick="showSelectBox()" href="#"
+                        <a onmousedown="showSelectBox(event)" href="#"
                            data-student="{{ student.id }}"
                            data-scoredate="{{ date|date:"Y-m-d" }}"
                            data-scoreid="{{ score_id_tuple|get_list_value:1 }}">{{ score_id_tuple|get_list_value:0 }}</a>
@@ -80,6 +90,7 @@
         }
 
 
+
         function sendScore(scoreParams, targetLink) {
             const request = new XMLHttpRequest();
             const url = "{% url 'add_score' %}";
@@ -94,12 +105,18 @@
             request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             request.addEventListener("readystatechange", () => {
                 if(request.readyState === 4 && request.status === 200) {
-                    targetLink.text = scoreParams["score_value"]
+                    // Проверяем и обновляем текст, чтобы отображать правильное значение
+                    if (scoreParams["score_value"] === "-1") {
+                        targetLink.text = "q";
+                    } else if (scoreParams["score_value"] === "-2") {
+                        targetLink.text = "İ";
+                    } else {
+                        targetLink.text = scoreParams["score_value"];
+                    }
                 }
             });
             request.send(params);
         }
-
 
         function getScoreParams(targetLink) {
             let score_value = targetLink.innerHTML.trim(); // Добавлено trim()
@@ -129,36 +146,73 @@
                 sendScore(scoreParams, targetLink);
             }
         }
+      function showSelectBox(event) {
+            event.preventDefault(); // Предотвращаем действия по умолчанию
+            event.stopPropagation(); // Останавливаем распространение события
 
-        function showSelectBox() {
-            const selectBoxOptions = {" ": "", "q": "-1", "1": "1", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7", "8": "8", "9": "9", "10": "10"};
+            // Создаём выпадающий список
+            const selectBoxOptions = {"q": "-1", 'İ': '-2'};
+            for (let i = 1; i <= 50; i++) {
+                selectBoxOptions[i.toString()] = i.toString();
+            }
 
             let selectBox = document.createElement("select");
             let targetLink = event.target;
             let scoreParams = getScoreParams(targetLink);
 
-            //Если оценка уже установлена и её ID не пустое, запретить изменения
+            // Если оценка уже установлена и её ID не пустое, запретить изменения
             if (targetLink.dataset.scoreid && targetLink.dataset.scoreid !== '0') {
                 return; // Не позволяем изменить уже выставленную оценку
-    }
+            }
 
+            // Заполняем выпадающий список
             for (let key in selectBoxOptions) {
-                selectBox.options.add(new Option(key, selectBoxOptions[key]));
+                let option = document.createElement("option");
+                option.value = selectBoxOptions[key];
+                option.text = key;
+                selectBox.appendChild(option);
             }
 
-            // Если значение "-1", устанавливаем "НБ"
-            if (scoreParams["score_value"].trim === "-1") {
-                selectBox.value = "-1"; // Устанавливаем как "НБ"
+            // Устанавливаем текущее значение
+            if (scoreParams["score_value"].trim() === "-1") {
+                selectBox.value = "-1"; // НБ
+            } else if (scoreParams["score_value"].trim() === "-2") {
+                selectBox.value = "-2"; // У
             } else {
-                selectBox.value = scoreParams["score_value"]-1;
+                selectBox.value = scoreParams["score_value"];
             }
 
-            selectBox.onkeypress = function() {
-                showLink(event, targetLink, scoreParams);
-            };
-            targetLink.parentNode.replaceChild(selectBox, targetLink);
-        }
+            // Событие для изменения выбора - фиксирует изменение и отправляет на сервер
+            selectBox.addEventListener("change", function () {
+                scoreParams["score_value"] = selectBox.value;
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+                sendScore(scoreParams, targetLink);
+            });
 
+            // Обработка клавиши Enter - фиксирует изменение
+            selectBox.addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
+                    scoreParams["score_value"] = selectBox.value;
+                    selectBox.parentNode.replaceChild(targetLink, selectBox);
+                    sendScore(scoreParams, targetLink);
+                }
+            });
+
+            // Потеря фокуса - также фиксируем значение
+            selectBox.addEventListener("blur", function () {
+                scoreParams["score_value"] = selectBox.value;
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+                sendScore(scoreParams, targetLink);
+            });
+
+            // Заменяем ссылку на выпадающий список
+            targetLink.parentNode.replaceChild(selectBox, targetLink);
+
+            // Устанавливаем фокус на элементе выбора, предотвращая прокрутку страницы
+            setTimeout(() => {
+                selectBox.focus({ preventScroll: true });
+            }, 0);
+        }
 
 
     </script>

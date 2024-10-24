@@ -3,6 +3,7 @@
     <h3>Şəxsi hesab</h3>
     <img class="user-avatar" src="{{ user.photo.url }}" alt="{{ user.get_full_name }}">
     <p><b>{{ user.get_full_name }}</b></p>
+    <p> {{ user.student.group.grade }}</p>
     <p><span class="small">Baş müəllim:</span> <br>{{ user_group_manager.get_full_name }}</p>
     <ul>
         <li><a href="{% url 'student_lk' %}">Mənim qiymətlərim</a></li>
