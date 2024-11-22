@@ -28,21 +28,34 @@
 #     except Exception as e:
 #         # Логируем ошибку, если отправка не удалась
 #         print(f"Ошибка отправки email на {user_email}: {e}")
-from django.core.mail import send_mail
+
 from django.conf import settings
+from django.core.mail import EmailMessage
 from celery import shared_task
 
+# @shared_task
+# def send_notification(user_email, subject, message,attachment=None):
+#     """
+#     Отправка уведомления на указанный email.
+#     """
+#     try:
+#         from_email = settings.DEFAULT_FROM_EMAIL  # Убедитесь, что это настроено в settings.py
+#
+#         # Отправляем письмо
+#         send_mail(subject, message, from_email, [user_email])
+#     except Exception as e:
+#         # Логируем ошибку, если отправка не удалась
+#         print(f"Ошибка отправки email на {user_email}: {e}")
+
 @shared_task
-def send_notification(user_email, subject, message):
-    """
-    Отправка уведомления на указанный email.
-    """
+def send_notification(user_email, subject, message, attachment=None):
     try:
-        from_email = settings.DEFAULT_FROM_EMAIL  # Убедитесь, что это настроено в settings.py
+        from_email = settings.DEFAULT_FROM_EMAIL
+        email = EmailMessage(subject, message, from_email, [user_email])
 
-        # Отправляем письмо
-        send_mail(subject, message, from_email, [user_email])
+        if attachment:
+            email.attach_file(attachment)
+
+        email.send()
     except Exception as e:
-        # Логируем ошибку, если отправка не удалась
         print(f"Ошибка отправки email на {user_email}: {e}")
-

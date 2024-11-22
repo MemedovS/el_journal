@@ -9,11 +9,12 @@
         (məktəb görüşləri, tədbirlər, promosyonlar, hadisələr) haqqında məlumat verməyə kömək edir..<br>
         Bülleten tələbə profilində göstərilən kontaktlara göndərilir.</p>
 
-    <form method="post" action="">
+    <form method="post" enctype="multipart/form-data" action="">
         {% csrf_token %}
         <p>{{ form.name }}</p>
         <p>{{ form.subject }}</p>
         <p>{{ form.message }}</p>
+        <p>{{ form.attachment }}</p> <!-- Добавляем поле для файла -->
 
     <h3>Poçt alıcılarını seçin:</h3>
         <table class="table-journal">

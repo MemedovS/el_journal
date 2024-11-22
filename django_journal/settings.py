@@ -6,9 +6,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'unsafe-secret-key')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1','81.17.88.146']
+#ALLOWED_HOSTS = ['81.17.88.146']
 
 INSTALLED_APPS = [
+    'corsheaders',
     'accounts',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,6 +39,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,10 +70,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'django_journal.wsgi.application'
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'OPTIONS': {
+            'timeout': 20,  # Увеличение тайм-аута (в секундах)
+        }
     }
 }
 
@@ -88,7 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True
 LANGUAGE_CODE = 'az'
 LANGUAGES = [
     ('az', 'Azerbaijani'),
@@ -105,7 +112,7 @@ USE_L10N = True
 USE_TZ = True
 
 # REDIS settings
-REDIS_HOST = '127.0.0.1'
+REDIS_HOST = '127.0.0.1'#,'81.17.88.146'
 REDIS_PORT = '6379'
 
 # CELERY settings
@@ -121,7 +128,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TEACHER = 'teacher'
 STUDENT = 'student'
 USER_STATUS_CHOICES = [(TEACHER, 'Учитель'), (STUDENT, 'Студент')]
-#SCORE_CHOICES = [(10, '10'), (9, '9'), (8, '8'), (7, '7'), (6, '6'), (5, '5'), (4, '4'), (3, '3'), (2, '2'),('-1', 'q')]
+
 SCORE_CHOICES = [(-1, 'НБ'), (0, 'İ')]+ [(i, str(i)) for i in range(1, 51)]
 
 GENDER_CHOICES = [('K', 'K'), ('Q', 'Q')]

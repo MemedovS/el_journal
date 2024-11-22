@@ -11,8 +11,11 @@ class Lesson(models.Model):
     """Справочник всех уроков в школе."""
     name = models.CharField('Название', max_length=100)
 
+
     def __str__(self):
         return self.name
+
+
 #
     def calculate_final_score(self, student):
         scores = Score.objects.filter(student=student, lesson=self)
@@ -23,6 +26,16 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = 'предмет'
         verbose_name_plural = 'Справочник предметов'
+
+
+
+class LessonTopic(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    date = models.DateField()
+    topic = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.lesson} - {self.date}: {self.topic}"
 
 
 class Grade(models.Model):
@@ -78,11 +91,13 @@ class Score(models.Model):
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='score_teacher', on_delete=models.SET_NULL,
                                 null=True, limit_choices_to={'user_status': TEACHER}, verbose_name='Учитель')
     score = models.SmallIntegerField(choices=SCORE_CHOICES, verbose_name='Оценка')
+
     score_status = models.ForeignKey(RatingItemStatus, on_delete=models.CASCADE, verbose_name='Статус оценки')
 #
     is_exam = models.BooleanField(default=False, verbose_name='Экзаменационная оценка')
     created = models.DateField(verbose_name='Дата создания')
     updated = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+
 
     def __str__(self):
         return str(self.score)
@@ -94,3 +109,24 @@ class Score(models.Model):
         verbose_name = 'запись журнала'
         verbose_name_plural = 'Оценки'
         unique_together = ['student', 'lesson', 'created']
+
+class AttendanceScore(models.Model):
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Используем AUTH_USER_MODEL
+        on_delete=models.CASCADE,
+        verbose_name="Студент",
+        related_name="attendance_scores"
+    )
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        verbose_name="Урок"
+    )
+    score = models.IntegerField(verbose_name="Посещаемость")
+
+    def __str__(self):
+        return f"{self.student} - {self.lesson} - {self.score}"
+
+    class Meta:
+        verbose_name = "Оценка посещаемости"
+        verbose_name_plural = "Оценки посещаемости"

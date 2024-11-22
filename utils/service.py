@@ -10,7 +10,7 @@ class ScoreJournalMixin:
             end_date = datetime.datetime.strptime(self.request.GET.get('end-date'), '%Y-%m-%d').date()
         except (ValueError, TypeError):
             end_date = datetime.date.today()
-            start_date = end_date - datetime.timedelta(days=15)
+            start_date = end_date - datetime.timedelta(days=10)
         return [start_date + i * day_delta for i in range((end_date - start_date).days + 1)]
 
     @staticmethod

@@ -51,6 +51,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from mailing.forms import MailingCreateForm
 from mailing.models import Mailing
 from people.models import User
+from journal.models import Lesson
 from . tasks import send_notification
 
 
@@ -67,8 +68,38 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
     template_name = 'mailing/mailing_detail.html'
     context_object_name = 'mailing'
     queryset = Mailing.objects.all()
-
-
+#
+#
+# class MailingCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+#     queryset = Mailing.objects.all()
+#     template_name = 'mailing/mailing_create.html'
+#     form_class = MailingCreateForm
+#     success_url = reverse_lazy('mailing_list')
+#     success_message = 'Рассылка успешно создана.'
+#
+#     def form_valid(self, form):
+#         form.instance.from_user = self.request.user
+#         mailing = form.save()
+#         to_users = User.objects.filter(id__in=form.cleaned_data['to_users'])
+#         # Уведомление по умолчанию
+#
+#         # for user in to_users:
+#         #     send_notification.delay(user.email, mailing.subject, mailing.message)  # Передаем все необходимые параметры
+#             # Пример отправки уведомления с вложением (обновите send_notification)
+#         for user in to_users:
+#             attachment_path = None
+#             if form.cleaned_data['attachment']:
+#                 attachment_path = form.cleaned_data['attachment'].path
+#
+#             send_notification.delay(user.email, mailing.subject, mailing.message, attachment_path)
+#
+#         return super().form_valid(form)
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(MailingCreateView, self).get_context_data(**kwargs)
+#         context['students'] = User.objects.select_related('student')\
+#             .filter(student__group=self.request.user.teacher.group_manager_id)
+#         return context
 class MailingCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     queryset = Mailing.objects.all()
     template_name = 'mailing/mailing_create.html'
@@ -80,14 +111,24 @@ class MailingCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         form.instance.from_user = self.request.user
         mailing = form.save()
         to_users = User.objects.filter(id__in=form.cleaned_data['to_users'])
-        # Уведомление по умолчанию
 
         for user in to_users:
-            send_notification.delay(user.email, mailing.subject, mailing.message)  # Передаем все необходимые параметры
+            attachment_path = None
+            if form.cleaned_data['attachment']:
+                attachment_path = form.cleaned_data['attachment'].path
+
+            send_notification.delay(user.email, mailing.subject, mailing.message, attachment_path)
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(MailingCreateView, self).get_context_data(**kwargs)
-        context['students'] = User.objects.select_related('student')\
-            .filter(student__group=self.request.user.teacher.group_manager_id)
+
+        # Получаем уроки, связанные с текущим учителем
+        subjects = Lesson.objects.filter(teachers=self.request.user.teacher)
+
+        # Получаем студентов, связанных с этими уроками
+        students = User.objects.filter(student__group__grade__lessons__in=subjects).distinct()
+        context['students'] = students
         return context
+

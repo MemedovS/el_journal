@@ -14,13 +14,8 @@ from journal.models import Lesson, Score
 from utils.service import ScoreJournalMixin
 
 
-# class TeacherListView(LoginRequiredMixin, ListView):
-#     """Список всех учителей в школе."""
-#     template_name = 'people/teacher_list.html'
-#
-#     def get_queryset(self):
-#         queryset = User.objects.select_related('teacher__group_manager__grade').filter(user_status=TEACHER)
-#         return queryset
+
+
 
 class TeacherListView(LoginRequiredMixin, ListView):
     """Список всех учителей в школе."""
@@ -155,3 +150,5 @@ class StudentUpdateView(LoginRequiredMixin, TeacherPermissionsMixin, SuccessMess
         return reverse_lazy('student_update', kwargs={'pk': self.kwargs['pk']})
 
 #####
+
+

@@ -164,22 +164,33 @@ class TeacherAdmin(admin.ModelAdmin):
     """Учителя."""
     list_display = ('get_full_name', 'group_manager', 'position', 'user')
     list_filter = ('group_manager',)
-    search_fields = ('user__last_name', 'user__first_name', 'user__middle_name')
+    search_fields = ('user__last_name', 'user__first_name', 'user__middle_name','get_full_name',)
 
     def get_full_name(self, obj):
-        return f'{obj.user.last_name} {obj.user.first_name} {obj.user.middle_name}'
+        return f'{obj.user.last_name} {obj.user.first_name} {obj.user.middle_name}' if obj.user else "Нет данных"
     get_full_name.short_description = 'Полное имя'
 
 
+# @admin.register(Student)
+# class StudentAdmin(admin.ModelAdmin):
+#     """Студенты."""
+#     list_display = ('get_full_name', 'group', 'user')
+#     list_filter = ('group',)
+#     search_fields = ('user__last_name', 'user__first_name', 'user__middle_name')
+#
+#     def get_full_name(self, obj):
+#         return f'{obj.user.last_name} {obj.user.first_name} {obj.user.middle_name}'
+#     get_full_name.short_description = 'Полное имя'
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     """Студенты."""
     list_display = ('get_full_name', 'group', 'user')
     list_filter = ('group',)
-    search_fields = ('user__last_name', 'user__first_name', 'user__middle_name')
+    search_fields = ('user__last_name', 'user__first_name', 'user__middle_name', 'get_full_name',)
 
     def get_full_name(self, obj):
-        return f'{obj.user.last_name} {obj.user.first_name} {obj.user.middle_name}'
+        return f'{obj.user.last_name} {obj.user.first_name} {obj.user.middle_name}' if obj.user else "Нет данных"
+
     get_full_name.short_description = 'Полное имя'
 
 

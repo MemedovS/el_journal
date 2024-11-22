@@ -13,7 +13,7 @@
             <h3>{{ user.get_full_name }}</h3>
             <p><i><u>Doğum tarixi:</u></i> {{ user.birth_date|date:"d.m.Y" }}</p>
             <p><i><u>Sinif:</u></i> {{ user.student.group.grade }}</p>
-            <span class="small-font">Xarakterik</span><hr>
+            <span class="small-font">Müəlimləri</span><hr>
             <p>{{ user.description }}</p>
 
             {% include "people/include/people_contact_info.html" %}

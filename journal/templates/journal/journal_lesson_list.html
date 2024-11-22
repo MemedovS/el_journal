@@ -4,11 +4,11 @@
 {% block title %}Fakultə jurnalı {{ group.grade }} {% endblock %}
 
 {% block content %}
-    <h1>Fakultə jurnalı  - {{ group.grade }} - {{ lesson }}</h1>
+    <h1>Fakultə jurnalı - {{ group.grade }} - {{ lesson }}</h1>
 
     <form action="{% url 'score_lesson' group.id lesson.id %}" method="get">
         <label> С
-            <input class="input-date" name="start-date" type="date" value="{{ date_period|first|date:"Y-m-d" }}" >
+            <input class="input-date" name="start-date" type="date" value="{{ date_period|first|date:"Y-m-d" }}">
         </label>
         <label> по
             <input class="input-date" name="end-date" type="date" value="{{ date_period|last|date:"Y-m-d" }}">
@@ -26,51 +26,86 @@
         <thead>
             <tr>
                 <th>ФИО</th>
-                 {% for date in date_period %}
-                     <th>{{ date|date:"d.m.Y" }}</th>
-                 {% endfor %}
+                {% for date in date_period %}
+                    <th>{{ date|date:"d.m.Y" }}</th>
+                {% endfor %}
+                <th>Dəvamiyyət</th>
             </tr>
+            <tr>
+                <th>Тема урока</th>
+                {% for date in date_period %}
+                    <th>
+                        <div
+                            onclick="showTopicEditBox(event, '{{ date|date:'Y-m-d' }}')"
+                            id="lesson-topic-{{ date|date:'Y-m-d' }}"
+                            style="word-wrap: break-word; white-space: pre-wrap; max-width: 150px; overflow-wrap: break-word;">
+                            {{ lesson_topics|get_dict_value:date|default:"Нет темы" }}
+                        </div>
+                    </th>
+                {% endfor %}
+                <th>Тема отсутствует</th>
+            </tr>
+
         </thead>
 
         <tbody>
-        {% for student in students %}
-    <tr>
-        <td><a href="{{ student.student.get_absolute_url }}">{{ student.get_full_name }}</a></td>
-        {% for date in date_period %}
-            {% with score_id_tuple=scores_dict|get_dict_value:date|get_dict_value:student.id %}
-                <td>
-                    <!-- Если оценка равна -1, показываем "НБ" -->
-                    {% if score_id_tuple|get_list_value:0 == -1 %}
-                        <a onmousedown="showSelectBox(event)" href="#"
+            {% for student in students %}
+                <tr>
+                    <td><a href="{{ student.student.get_absolute_url }}">{{ student.get_full_name }}</a></td>
+                    {% for date in date_period %}
+                        {% with score_id_tuple=scores_dict|get_dict_value:date|get_dict_value:student.id %}
+                            <td>
+                                {% if score_id_tuple %}
+                                    {% if score_id_tuple|get_list_value:0 == -1 %}
+                                        <a onmousedown="showSelectBox(event)" href="#"
+                                           data-student="{{ student.id }}"
+                                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">q</a>
+                                    {% elif score_id_tuple|get_list_value:0 == 0 %}
+                                        <a onmousedown="showSelectBox(event)" href="#"
+                                           data-student="{{ student.id }}"
+                                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</a>
+                                    {% elif score_id_tuple|get_list_value:0 == -2 %}
+                                        <a onmousedown="showSelectBox(event)" href="#"
+                                           data-student="{{ student.id }}"
+                                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">İ</a>
+                                    {% else %}
+                                        <a onmousedown="showSelectBox(event)" href="#"
+                                           data-student="{{ student.id }}"
+                                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">{{ score_id_tuple|get_list_value:0 }}</a>
+                                    {% endif %}
+                                {% else %}
+                                    <a onmousedown="showSelectBox(event)" href="#"
+                                       data-student="{{ student.id }}"
+                                       data-scoredate="{{ date|date:"Y-m-d" }}"
+                                       data-scoreid="0">--</a>
+                                {% endif %}
+                            </td>
+                        {% endwith %}
+                    {% endfor %}
+                     <td>
+                        <a href="#"
+                           onclick="showAttendanceSelectBox(event, {{ student.id }})"
+                           id="student-attendance-{{ student.id }}"
                            data-student="{{ student.id }}"
-                           data-scoredate="{{ date|date:"Y-m-d" }}"
-                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">q</a>
-                    <!-- Если оценка равна 0, показываем "--" -->
-                    {% elif score_id_tuple|get_list_value:0 == 0 %}
-                        <a onmousedown="showSelectBox(event)" href="#"
-                           data-student="{{ student.id }}"
-                           data-scoredate="{{ date|date:"Y-m-d" }}"
-                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</a>
-                    {% elif score_id_tuple|get_list_value:0 == -2 %}
-                        <a onmousedown="showSelectBox(event)" href="#"
-                           data-student="{{ student.id }}"
-                           data-scoredate="{{ date|date:"Y-m-d" }}"
-                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">İ</a>
-                    <!-- В остальных случаях показываем оценку -->
-                    {% else %}
-                        <a onmousedown="showSelectBox(event)" href="#"
-                           data-student="{{ student.id }}"
-                           data-scoredate="{{ date|date:"Y-m-d" }}"
-                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">{{ score_id_tuple|get_list_value:0 }}</a>
-                    {% endif %}
-                </td>
-            {% endwith %}
-        {% endfor %}
-    </tr>
-{% endfor %}
+                           class="attendance-link">
+                            {{ attendance_scores|get_dict_value:student.id|default:'--' }}
+                        </a>
+                    </td>
 
-    </tbody>
+
+
+
+
+                </tr>
+            {% endfor %}
+        </tbody>
     </table>
+
+
 
     <script>
         function getCookie(name) {
@@ -89,6 +124,105 @@
             return cookieValue;
         }
 
+        function showAttendanceSelectBox(event, studentId) {
+            event.preventDefault();
+            const targetLink = event.target;
+            const oldAttendance = targetLink.innerText.trim();
+
+            const selectBox = document.createElement("select");
+            const attendanceOptions = {
+                "-1": "q",
+                "0": "--",
+                "-2": "İ",
+            };
+            for (let i = 1; i <= 50; i++) {
+                attendanceOptions[i.toString()] = i.toString();
+            }
+
+            for (let key in attendanceOptions) {
+                const option = document.createElement("option");
+                option.value = key;
+                option.text = attendanceOptions[key];
+                if (attendanceOptions[key] === oldAttendance) {
+                    option.selected = true;
+                }
+                selectBox.appendChild(option);
+            }
+
+            selectBox.addEventListener("change", () => {
+                const newAttendanceValue = selectBox.value;
+                sendAttendanceScore(studentId, newAttendanceValue, targetLink);
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+            });
+
+            selectBox.addEventListener("blur", () => {
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+            });
+
+            targetLink.parentNode.replaceChild(selectBox, targetLink);
+            setTimeout(() => {
+                selectBox.focus();
+            }, 0);
+        }
+
+      function sendAttendanceScore(studentId, attendanceValue, targetLink) {
+            const request = new XMLHttpRequest();
+            const url = "{% url 'add_attendance_score' %}";
+            const csrftoken = getCookie('csrftoken');
+            const params = `student=${encodeURIComponent(studentId)}&attendance=${encodeURIComponent(attendanceValue)}&lesson={{ lesson.id }}`;
+
+            request.open("POST", url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            request.onreadystatechange = function () {
+                if (request.readyState === 4) {
+                    if (request.status === 200) {
+                        targetLink.innerText = attendanceValue === "-1" ? "q" : attendanceValue;
+                    } else {
+                        console.error("Ошибка при сохранении посещаемости:", request.responseText);
+                    }
+                }
+            };
+            request.send(params);
+        }
+
+
+
+
+        function showTopicEditBox(event, date) {
+            const topicElement = event.target;
+            const oldTopic = topicElement.innerText.trim();
+            const inputBox = document.createElement("input");
+
+            inputBox.type = "text";
+            inputBox.value = oldTopic === "Нет темы" ? "" : oldTopic;
+            inputBox.onblur = function() {
+                saveLessonTopic(date, inputBox.value, topicElement);
+            };
+
+            topicElement.innerHTML = '';
+            topicElement.appendChild(inputBox);
+            inputBox.focus();
+        }
+
+        function saveLessonTopic(date, newTopic, topicElement) {
+            const request = new XMLHttpRequest();
+            const url = "{% url 'save_lesson_topic' %}";
+            const csrftoken = getCookie('csrftoken');
+            const params = `date=${encodeURIComponent(date)}&topic=${encodeURIComponent(newTopic)}&lesson={{ lesson.id }}`;
+
+            request.open("POST", url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            request.onreadystatechange = function () {
+                if (request.readyState === 4 && request.status === 200) {
+                    topicElement.innerText = newTopic || "Нет темы";
+                }
+            };
+            request.send(params);
+        }
 
 
         function sendScore(scoreParams, targetLink) {
@@ -212,6 +346,8 @@
             setTimeout(() => {
                 selectBox.focus({ preventScroll: true });
             }, 0);
+
+
         }
 
 

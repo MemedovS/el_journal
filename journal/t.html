@@ -1,0 +1,607 @@
+{% extends "base.html" %}
+{% load filters %}
+
+{% block title %}Fakultə jurnalı {{ group.grade }} {% endblock %}
+
+{% block content %}
+    <h1>Fakultə jurnalı  - {{ group.grade }} - {{ lesson }}</h1>
+
+    <form action="{% url 'score_lesson' group.id lesson.id %}" method="get">
+        <label> С
+            <input class="input-date" name="start-date" type="date" value="{{ date_period|first|date:"Y-m-d" }}" >
+        </label>
+        <label> по
+            <input class="input-date" name="end-date" type="date" value="{{ date_period|last|date:"Y-m-d" }}">
+        </label>
+        <button class="btn-filter btn-filter-purple" type="submit">Qəbul edin</button>
+    </form>
+
+    <!-- Кнопка для выгрузки в Excel -->
+    <form action="{% url 'export_scores_to_excel' group.id lesson.id %}" method="get">
+        <button type="submit" class="btn-export">Выгрузить оценки в Excel</button>
+    </form>
+
+    <p></p>
+    <table id="testTable" class="table-journal">
+        <thead>
+            <tr>
+                <th>ФИО</th>
+                 {% for date in date_period %}
+                     <th>{{ date|date:"d.m.Y" }}</th>
+                 {% endfor %}
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for student in students %}
+    <tr>
+        <td><a href="{{ student.student.get_absolute_url }}">{{ student.get_full_name }}</a></td>
+        {% for date in date_period %}
+            {% with score_id_tuple=scores_dict|get_dict_value:date|get_dict_value:student.id %}
+                <td>
+                    <!-- Если оценка равна -1, показываем "НБ" -->
+                    {% if score_id_tuple|get_list_value:0 == -1 %}
+                        <a onmousedown="showSelectBox(event)" href="#"
+                           data-student="{{ student.id }}"
+                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">q</a>
+
+                    <!-- Если оценка равна 0, показываем "--" -->
+                    {% elif score_id_tuple|get_list_value:0 == 0 %}
+                        <a onmousedown="showSelectBox(event)" href="#"
+                           data-student="{{ student.id }}"
+                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</a>
+
+                    {% elif score_id_tuple|get_list_value:0 == -2 %}
+                        <a onmousedown="showSelectBox(event)" href="#"
+                           data-student="{{ student.id }}"
+                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">İ</a>
+
+                    <!-- В остальных случаях показываем оценку -->
+                    {% else %}
+                        <a onmousedown="showSelectBox(event)" href="#"
+                           data-student="{{ student.id }}"
+                           data-scoredate="{{ date|date:"Y-m-d" }}"
+                           data-scoreid="{{ score_id_tuple|get_list_value:1 }}">{{ score_id_tuple|get_list_value:0 }}</a>
+
+                    {% endif %}
+                </td>
+            {% endwith %}
+        {% endfor %}
+    </tr>
+{% endfor %}
+
+    </tbody>
+    </table>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+
+        function sendScore(scoreParams, targetLink) {
+            const request = new XMLHttpRequest();
+            const url = "{% url 'add_score' %}";
+            const csrftoken = getCookie("csrftoken");
+            let params = '' + Object.keys(scoreParams).map(function(key) {
+                return encodeURIComponent(key) + '='
+                    + encodeURIComponent(scoreParams[key]);
+            }).join('&');
+
+            request.open("POST", url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            request.addEventListener("readystatechange", () => {
+                if(request.readyState === 4 && request.status === 200) {
+                    // Проверяем и обновляем текст, чтобы отображать правильное значение
+                    if (scoreParams["score_value"] === "-1") {
+                        targetLink.text = "q";
+                    } else if (scoreParams["score_value"] === "-2") {
+                        targetLink.text = "İ";
+                    } else {
+                        targetLink.text = scoreParams["score_value"];
+                    }
+                }
+            });
+            request.send(params);
+        }
+
+        function getScoreParams(targetLink) {
+            let score_value = targetLink.innerHTML.trim(); // Добавлено trim()
+            // Если значение "НБ", передаем -1
+            if (score_value === "q") {
+                score_value = "-1";
+            }
+
+            return {
+                group: {{ group.id }},
+                lesson: {{ lesson.id }}, //scores.first.lesson.id
+                teacher: {{ user.teacher.id }},
+                student: targetLink.dataset.student,
+                score_status: 1,
+                score_id: targetLink.dataset.scoreid,
+                score_value: score_value,//innerHTML
+                score_date: targetLink.dataset.scoredate,
+            }
+        }
+
+
+        function showLink(e, targetLink, scoreParams) {
+            if (e.which === 13) {
+                let targetSelectBox = e.target;
+                scoreParams["score_value"] = targetSelectBox.value;
+                targetSelectBox.parentNode.replaceChild(targetLink, targetSelectBox);
+                sendScore(scoreParams, targetLink);
+            }
+        }
+      function showSelectBox(event) {
+            event.preventDefault(); // Предотвращаем действия по умолчанию
+            event.stopPropagation(); // Останавливаем распространение события
+
+            // Создаём выпадающий список
+            const selectBoxOptions = {"q": "-1", 'İ': '-2'};
+            for (let i = 1; i <= 50; i++) {
+                selectBoxOptions[i.toString()] = i.toString();
+            }
+
+            let selectBox = document.createElement("select");
+            let targetLink = event.target;
+            let scoreParams = getScoreParams(targetLink);
+
+            // Если оценка уже установлена и её ID не пустое, запретить изменения
+            if (targetLink.dataset.scoreid && targetLink.dataset.scoreid !== '0') {
+                return; // Не позволяем изменить уже выставленную оценку
+            }
+
+            // Заполняем выпадающий список
+            for (let key in selectBoxOptions) {
+                let option = document.createElement("option");
+                option.value = selectBoxOptions[key];
+                option.text = key;
+                selectBox.appendChild(option);
+            }
+
+            // Устанавливаем текущее значение
+            if (scoreParams["score_value"].trim() === "-1") {
+                selectBox.value = "-1"; // НБ
+            } else if (scoreParams["score_value"].trim() === "-2") {
+                selectBox.value = "-2"; // У
+            } else {
+                selectBox.value = scoreParams["score_value"];
+            }
+
+            // Событие для изменения выбора - фиксирует изменение и отправляет на сервер
+            selectBox.addEventListener("change", function () {
+                scoreParams["score_value"] = selectBox.value;
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+                sendScore(scoreParams, targetLink);
+            });
+
+            // Обработка клавиши Enter - фиксирует изменение
+            selectBox.addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
+                    scoreParams["score_value"] = selectBox.value;
+                    selectBox.parentNode.replaceChild(targetLink, selectBox);
+                    sendScore(scoreParams, targetLink);
+                }
+            });
+
+            // Потеря фокуса - также фиксируем значение
+            selectBox.addEventListener("blur", function () {
+                scoreParams["score_value"] = selectBox.value;
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+                sendScore(scoreParams, targetLink);
+            });
+
+            // Заменяем ссылку на выпадающий список
+            targetLink.parentNode.replaceChild(selectBox, targetLink);
+
+            // Устанавливаем фокус на элементе выбора, предотвращая прокрутку страницы
+            setTimeout(() => {
+                selectBox.focus({ preventScroll: true });
+            }, 0);
+        }
+
+//         // Adapt sendScore to include status
+//         function sendScore(scoreParams, targetLink) {
+//             const request = new XMLHttpRequest();
+//             const url = "{% url 'add_score' %}";
+//             const csrftoken = getCookie("csrftoken");
+//             let params = Object.keys(scoreParams).map(function (key) {
+//                 return encodeURIComponent(key) + '=' + encodeURIComponent(scoreParams[key]);
+//             }).join('&');
+//
+//             request.open("POST", url, true);
+//             request.setRequestHeader("X-CSRFToken", csrftoken);
+//             request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+//             request.addEventListener("readystatechange", () => {
+//                 if (request.readyState === 4 && request.status === 200) {
+//                     if (scoreParams["score_value"] === "-1") {
+//                         targetLink.text = "q";
+//                     } else if (scoreParams["score_value"] === "-2") {
+//                         targetLink.text = "İ";
+//                     } else {
+//                         targetLink.text = scoreParams["score_value"];
+//                     }
+//                 }
+//             });
+//             request.send(params);
+// }
+    </script>
+{% endblock %
+#============================
+{% extends "base.html" %}
+{% load filters %}
+
+{% block title %}Fakultə jurnalı {{ group.grade }} {% endblock %}
+
+{% block content %}
+<h1>Fakultə jurnalı - {{ group.grade }} - {{ lesson }}</h1>
+
+<!-- Форма для фильтрации по дате -->
+<form action="{% url 'score_lesson' group.id lesson.id %}" method="get">
+    <label> С
+        <input class="input-date" name="start-date" type="date" value="{{ date_period|first|date:"Y-m-d" }}">
+    </label>
+    <label> по
+        <input class="input-date" name="end-date" type="date" value="{{ date_period|last|date:"Y-m-d" }}">
+    </label>
+    <button class="btn-filter btn-filter-purple" type="submit">Qəbul edin</button>
+</form>
+
+<!-- Кнопка для выгрузки в Excel -->
+<form action="{% url 'export_scores_to_excel' group.id lesson.id %}" method="get">
+    <button type="submit" class="btn-export">Выгрузить оценки в Excel</button>
+</form>
+
+<p></p>
+    <table id="testTable" class="table-journal">
+    <thead>
+        <tr>
+            <th>ФИО</th>
+
+            {% for date in date_period %}
+                <th>{{ date|date:"d.m.Y" }}</th>
+            {% endfor %}
+            <th>Посещаемость</th> <!-- Заголовок для посещаемости -->
+        </tr>
+        <tr>
+            <th>Тема урока</th>
+            {% for date in date_period %}
+                <th>
+                    <div onclick="showTopicEditBox(event, '{{ date|date:'Y-m-d' }}')" id="lesson-topic-{{ date|date:'Y-m-d' }}">
+                        {{ lesson_topics|get_dict_value:date|default:"Нет темы" }}
+                    </div>
+                </th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for student in students %}
+        <tr>
+            <td><a href="{{ student.student.get_absolute_url }}">{{ student.get_full_name }}</a></td>
+            {% for date in date_period %}
+                {% with score_id_tuple=scores_dict|get_dict_value:date|get_dict_value:student.id %}
+                    <td>
+                        {% if score_id_tuple|get_list_value:0 == -1 %}
+                            <a onmousedown="showSelectBox(event)" href="#"
+                               data-student="{{ student.id }}"
+                               data-scoredate="{{ date|date:"Y-m-d" }}"
+                               data-scoreid="{{ score_id_tuple|get_list_value:1 }}">q</a>
+                        {% elif score_id_tuple|get_list_value:0 == 0 %}
+                            <a onmousedown="showSelectBox(event)" href="#"
+                               data-student="{{ student.id }}"
+                               data-scoredate="{{ date|date:"Y-m-d" }}"
+                               data-scoreid="{{ score_id_tuple|get_list_value:1 }}">--</a>
+                        {% elif score_id_tuple|get_list_value:0 == -2 %}
+                            <a onmousedown="showSelectBox(event)" href="#"
+                               data-student="{{ student.id }}"
+                               data-scoredate="{{ date|date:"Y-m-d" }}"
+                               data-scoreid="{{ score_id_tuple|get_list_value:1 }}">İ</a>
+                        {% else %}
+                            <a onmousedown="showSelectBox(event)" href="#"
+                               data-student="{{ student.id }}"
+                               data-scoredate="{{ date|date:"Y-m-d" }}"
+                               data-scoreid="{{ score_id_tuple|get_list_value:1 }}">{{ score_id_tuple|get_list_value:0 }}</a>
+                        {% endif %}
+                    </td>
+                {% endwith %}
+            {% endfor %}
+            <td>
+                <!-- Отображение и редактирование посещаемости -->
+                {% with attendance_scores|get_dict_value:student.id|get_dict_value:date as attendance_score %}
+                    <a href="#" onmousedown="showAttendanceSelectBox(event, {{ student.id }})">
+                        {{ student_attendance|default:"-" }}
+                        </a>
+
+                {% endwith %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+
+
+
+
+
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        function showTopicEditBox(event, date) {
+            const topicElement = event.target;
+            const oldTopic = topicElement.innerText.trim();
+            const inputBox = document.createElement("input");
+
+            inputBox.type = "text";
+            inputBox.value = oldTopic === "Нет темы" ? "" : oldTopic;
+            inputBox.onblur = function() {
+                saveLessonTopic(date, inputBox.value, topicElement);
+            };
+
+            topicElement.innerHTML = '';
+            topicElement.appendChild(inputBox);
+            inputBox.focus();
+        }
+
+        function saveLessonTopic(date, newTopic, topicElement) {
+            const request = new XMLHttpRequest();
+            const url = "{% url 'save_lesson_topic' %}";
+            const csrftoken = getCookie('csrftoken');
+            const params = `date=${encodeURIComponent(date)}&topic=${encodeURIComponent(newTopic)}&lesson={{ lesson.id }}`;
+
+            request.open("POST", url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            request.onreadystatechange = function () {
+                if (request.readyState === 4 && request.status === 200) {
+                    topicElement.innerText = newTopic || "Нет темы";
+                }
+            };
+            request.send(params);
+        }
+
+
+        function sendScore(scoreParams, targetLink) {
+            const request = new XMLHttpRequest();
+            const url = "{% url 'add_score' %}";
+            const csrftoken = getCookie("csrftoken");
+            let params = '' + Object.keys(scoreParams).map(function(key) {
+                return encodeURIComponent(key) + '='
+                    + encodeURIComponent(scoreParams[key]);
+            }).join('&');
+
+            request.open("POST", url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            request.addEventListener("readystatechange", () => {
+                if(request.readyState === 4 && request.status === 200) {
+                    // Проверяем и обновляем текст, чтобы отображать правильное значение
+                    if (scoreParams["score_value"] === "-1") {
+                        targetLink.text = "q";
+                    } else if (scoreParams["score_value"] === "-2") {
+                        targetLink.text = "İ";
+                    } else {
+                        targetLink.text = scoreParams["score_value"];
+                    }
+                }
+            });
+            request.send(params);
+        }
+
+        function getScoreParams(targetLink) {
+            let score_value = targetLink.innerHTML.trim(); // Добавлено trim()
+            // Если значение "НБ", передаем -1
+            if (score_value === "q") {
+                score_value = "-1";
+            }
+
+            return {
+                group: {{ group.id }},
+                lesson: {{ lesson.id }}, //scores.first.lesson.id
+                teacher: {{ user.teacher.id }},
+                student: targetLink.dataset.student,
+                score_status: 1,
+                score_id: targetLink.dataset.scoreid,
+                score_value: score_value,//innerHTML
+                score_date: targetLink.dataset.scoredate,
+            }
+        }
+
+
+        function showLink(e, targetLink, scoreParams) {
+            if (e.which === 13) {
+                let targetSelectBox = e.target;
+                scoreParams["score_value"] = targetSelectBox.value;
+                targetSelectBox.parentNode.replaceChild(targetLink, targetSelectBox);
+                sendScore(scoreParams, targetLink);
+            }
+        }
+      function showSelectBox(event) {
+            event.preventDefault(); // Предотвращаем действия по умолчанию
+            event.stopPropagation(); // Останавливаем распространение события
+
+            // Создаём выпадающий список
+            const selectBoxOptions = {"q": "-1", 'İ': '-2'};
+            for (let i = 1; i <= 50; i++) {
+                selectBoxOptions[i.toString()] = i.toString();
+            }
+
+            let selectBox = document.createElement("select");
+            let targetLink = event.target;
+            let scoreParams = getScoreParams(targetLink);
+
+            // Если оценка уже установлена и её ID не пустое, запретить изменения
+            if (targetLink.dataset.scoreid && targetLink.dataset.scoreid !== '0') {
+                return; // Не позволяем изменить уже выставленную оценку
+            }
+
+            // Заполняем выпадающий список
+            for (let key in selectBoxOptions) {
+                let option = document.createElement("option");
+                option.value = selectBoxOptions[key];
+                option.text = key;
+                selectBox.appendChild(option);
+            }
+
+            // Устанавливаем текущее значение
+            if (scoreParams["score_value"].trim() === "-1") {
+                selectBox.value = "-1"; // НБ
+            } else if (scoreParams["score_value"].trim() === "-2") {
+                selectBox.value = "-2"; // У
+            } else {
+                selectBox.value = scoreParams["score_value"];
+            }
+
+            // Событие для изменения выбора - фиксирует изменение и отправляет на сервер
+            selectBox.addEventListener("change", function () {
+                scoreParams["score_value"] = selectBox.value;
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+                sendScore(scoreParams, targetLink);
+            });
+
+            // Обработка клавиши Enter - фиксирует изменение
+            selectBox.addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
+                    scoreParams["score_value"] = selectBox.value;
+                    selectBox.parentNode.replaceChild(targetLink, selectBox);
+                    sendScore(scoreParams, targetLink);
+                }
+            });
+
+            // Потеря фокуса - также фиксируем значение
+            selectBox.addEventListener("blur", function () {
+                scoreParams["score_value"] = selectBox.value;
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+                sendScore(scoreParams, targetLink);
+            });
+
+            // Заменяем ссылку на выпадающий список
+            targetLink.parentNode.replaceChild(selectBox, targetLink);
+
+            // Устанавливаем фокус на элементе выбора, предотвращая прокрутку страницы
+            setTimeout(() => {
+                selectBox.focus({ preventScroll: true });
+            }, 0);
+        }
+
+      function showAttendanceSelectBox(event, studentId) {
+            event.preventDefault(); // Предотвращаем действия по умолчанию
+            event.stopPropagation(); // Останавливаем распространение события
+
+            let targetLink = event.target;
+            let oldAttendance = targetLink.innerText.trim();
+            let selectBox = document.createElement("select");
+
+            // Определение значений для выпадающего списка посещаемости
+            const attendanceOptions = {};
+            for (let i = -1; i <= 50; i++) {
+                attendanceOptions[i.toString()] = i.toString(); // Присваиваем значения от -1 до 50
+            }
+
+            // Заполнение выпадающего списка
+            for (let key in attendanceOptions) {
+                let option = document.createElement("option");
+                option.value = attendanceOptions[key];
+                option.text = key;
+
+                if (key === oldAttendance) {
+                    option.selected = true;  // Устанавливаем текущее значение
+                }
+                selectBox.appendChild(option);
+            }
+
+            // Событие для изменения выбора - фиксирует изменение и отправляет на сервер
+            selectBox.addEventListener("change", function () {
+                let newAttendanceValue = selectBox.value;
+                sendAttendanceScore(studentId, newAttendanceValue, targetLink);
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+            });
+
+            // Обработка клавиши Enter - фиксирует изменение
+            selectBox.addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
+                    let newAttendanceValue = selectBox.value;
+                    sendAttendanceScore(studentId, newAttendanceValue, targetLink);
+                    selectBox.parentNode.replaceChild(targetLink, selectBox);
+                }
+            });
+
+            // Потеря фокуса - также фиксируем значение
+            selectBox.addEventListener("blur", function () {
+                let newAttendanceValue = selectBox.value;
+                sendAttendanceScore(studentId, newAttendanceValue, targetLink);
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+            });
+
+            // Заменяем текст на выпадающий список
+            targetLink.parentNode.replaceChild(selectBox, targetLink);
+            setTimeout(() => {
+                selectBox.focus({ preventScroll: true });
+            }, 0);
+        }
+
+      function sendAttendanceScore(studentId, newAttendanceValue, targetLink) {
+            const request = new XMLHttpRequest();
+            const url = "{% url 'add_attendance_score' %}";  // Используйте правильный URL для сохранения посещаемости
+            const csrftoken = getCookie('csrftoken');
+            const params = `student=${encodeURIComponent(studentId)}&attendance=${encodeURIComponent(newAttendanceValue)}&lesson={{ lesson.id }}`;
+
+            console.log("Отправляем параметры:", params); // Логируем параметры перед отправкой
+
+
+
+            request.open("POST", url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            request.onreadystatechange = function () {
+                if (request.readyState === 4) {
+                    if (request.status === 200) {
+                        // Обновляем текст в элементе после успешного обновления на сервере
+                        targetLink.innerText = newAttendanceValue === "-1" ? "q" : newAttendanceValue;
+                        console.log("Оценка посещаемости сохранена успешно");
+                    } else {
+                        console.error("Ошибка при сохранении посещаемости:", request.responseText);
+                    }
+                }
+            };
+            request.send(params);
+        }
+
+
+    </script>
+{% endblock %}

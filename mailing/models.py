@@ -3,7 +3,6 @@ from django.urls import reverse_lazy
 
 from people.models import User
 
-
 class Mailing(models.Model):
     """Информационные рассылки."""
     name = models.CharField(max_length=150, verbose_name='Название рассылки')
@@ -11,6 +10,7 @@ class Mailing(models.Model):
     message = models.TextField(verbose_name='Текст сообщения')
     from_user = models.ForeignKey(User, related_name='mailing_from', on_delete=models.CASCADE, verbose_name='Отправитель')
     to_users = models.ManyToManyField(User, related_name='mailing_to', verbose_name='Получатели')
+    attachment = models.FileField(upload_to='mailing_attachments/', blank=True, null=True, verbose_name='Вложение')
     created = models.DateField(auto_now_add=True, verbose_name='Дата создания')
 
     def __str__(self):
@@ -22,3 +22,4 @@ class Mailing(models.Model):
     class Meta:
         verbose_name = 'Рассылка'
         verbose_name_plural = 'Рассылки'
+
