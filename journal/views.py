@@ -15,12 +15,13 @@ from django.views.generic.base import View
 from django_journal.permissions import TeacherPermissionsMixin, TeacherLessonPermissionsMixin
 from django_journal.settings import TEACHER
 from people.models import User
-from .models import GroupStudent, Score, Lesson,RatingItemStatus,LessonTopic,AttendanceScore
+from .models import GroupStudent, Score, Lesson,RatingItemStatus,LessonTopic,AttendanceScore,SumScore
 from utils.service import ScoreJournalMixin
 
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 #
+
 
 
 class GroupStudentListView(LoginRequiredMixin, TeacherPermissionsMixin, ListView):
@@ -92,8 +93,12 @@ class ScoreLessonListView(LoginRequiredMixin, TeacherLessonPermissionsMixin, Sco
         attendance_scores = AttendanceScore.objects.filter(lesson=self.lesson)
         attendance_scores_dict = {record.student_id: record.score for record in attendance_scores}
 
+        sum_scores = SumScore.objects.filter(lesson=self.lesson)
+        sum_scores_dict = {record.student_id: record.score for record in sum_scores}
+
         context["students"] = students
         context["attendance_scores"] = attendance_scores_dict
+        context["sum_scores"] = sum_scores_dict  # Добавляем данные сумм
         context["date_period"] = date_period
         context["scores_dict"] = self.create_scores_dict(
             date_period,
@@ -106,6 +111,35 @@ class ScoreLessonListView(LoginRequiredMixin, TeacherLessonPermissionsMixin, Sco
         context["lesson_topics"] = lesson_topics
         return context
 
+@csrf_exempt
+def add_sum_score(request):
+    if request.method == "POST":
+        try:
+            user_id = request.POST.get("student")
+            sum_value = request.POST.get("sum_score")
+            lesson_id = request.POST.get("lesson")
+
+            if not (user_id and sum_value and lesson_id):
+                return JsonResponse({"error": "Недостаточно данных для сохранения оценки."}, status=400)
+
+            user = User.objects.get(pk=user_id)
+            lesson = Lesson.objects.get(pk=lesson_id)
+
+            # Проверка, существует ли уже запись
+            sum_score, created = SumScore.objects.update_or_create(
+                student=user,
+                lesson=lesson,
+                defaults={"score": sum_value}
+            )
+            return JsonResponse({"status": "success"})
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Пользователь не найден."}, status=404)
+        except Lesson.DoesNotExist:
+            return JsonResponse({"error": "Урок не найден."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Неверный метод запроса."}, status=405)
 
 @csrf_exempt
 def add_attendance_score(request):

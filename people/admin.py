@@ -194,10 +194,11 @@ class StudentAdmin(admin.ModelAdmin):
     get_full_name.short_description = 'Полное имя'
 
 
+
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     """Контакты."""
-    list_display = ('get_full_name', 'phone1', 'phone2', 'phone3')
+    list_display = ('get_full_name', 'phone', 'email')
 
     def get_full_name(self, obj):
         return f'{obj.user.last_name} {obj.user.first_name} {obj.user.middle_name}'

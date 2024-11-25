@@ -97,6 +97,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 LANGUAGE_CODE = 'az'
+
 LANGUAGES = [
     ('az', 'Azerbaijani'),
     ('ru', 'Russian'),

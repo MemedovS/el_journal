@@ -31,18 +31,18 @@ class User(AbstractUser):
 
 class Contact(models.Model):
     """Контакты учеников, родителей, учителей"""
-    phone1 = models.CharField(max_length=12, blank=True, verbose_name='Телефон 1')
-    phone2 = models.CharField(max_length=12, blank=True, verbose_name='Телефон 2')
-    phone3 = models.CharField(max_length=12, blank=True, verbose_name='Телефон 3')
+    phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон')
+    email = models.EmailField(max_length=254, blank=True, verbose_name='Электронная почта')
     user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='contact', null=True, blank=True,
                                 verbose_name='Контактные данные', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.phone1
+        return f"{self.phone or 'Нет телефона'}"
 
     class Meta:
         verbose_name = 'Контакт'
         verbose_name_plural = 'Контакты'
+
 
 
 class Teacher(models.Model):

@@ -9,7 +9,7 @@
             <tr>
                 <th>№</th>
                 <th>Fakultə</th>
-                <th>Rəhbər</th>
+<!--                <th>Rəhbər</th>-->
             </tr>
         </thead>
         <tbody>
@@ -17,12 +17,13 @@
                 {% if user.teacher.group_manager %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
+
                         <td>
                             <a href="{{ user.teacher.group_manager.get_absolute_url }}">
                                 {{ user.teacher.group_manager.grade }}
                             </a>
                         </td>
-                        <td><a href="{{ user.teacher.get_absolute_url }}">{{ user.get_full_name }}</a></td>
+<!--                        <td><a href="{{ user.teacher.get_absolute_url }}">{{ user.get_full_name }}</a></td>-->
                     </tr>
                 {% endif %}
             {% endfor %}

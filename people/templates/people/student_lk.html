@@ -6,11 +6,11 @@
     <h1>Qiymətlər</h1>
     <form action="{% url 'student_lk' %}" method="get">
         <label> С
-            <input class="input-date" name="start-date" type="date" value="{{ date_period|first|date:"Y-m-d" }}" >
+            <input class="input-date" name="start-date" type="date" lang="az" value="{{ date_period|first|date:"Y-m-d" }}" >
         </label>
 
         <label> по
-            <input class="input-date" name="end-date" type="date" value="{{ date_period|last|date:"Y-m-d" }}">
+            <input class="input-date" name="end-date" type="date" lang="az" value="{{ date_period|last|date:"Y-m-d" }}">
         </label>
         <button class="btn-filter btn-filter-purple" type="submit">Qəbul et</button>
     </form>

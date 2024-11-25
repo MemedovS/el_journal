@@ -8,42 +8,44 @@
 
     <form action="{% url 'score_lesson' group.id lesson.id %}" method="get">
         <label> С
-            <input class="input-date" name="start-date" type="date" value="{{ date_period|first|date:"Y-m-d" }}">
+            <input class="input-date" name="start-date" type="date" lang="az" value="{{ date_period|first|date:"Y-m-d" }}">
         </label>
         <label> по
-            <input class="input-date" name="end-date" type="date" value="{{ date_period|last|date:"Y-m-d" }}">
+            <input class="input-date" name="end-date" type="date" lang="az" value="{{ date_period|last|date:"Y-m-d" }}">
         </label>
         <button class="btn-filter btn-filter-purple" type="submit">Qəbul edin</button>
     </form>
 
     <!-- Кнопка для выгрузки в Excel -->
     <form action="{% url 'export_scores_to_excel' group.id lesson.id %}" method="get">
-        <button type="submit" class="btn-export">Выгрузить оценки в Excel</button>
+        <button type="submit" class="btn-export"> Excel Yüklə</button>
     </form>
 
     <p></p>
     <table id="testTable" class="table-journal">
         <thead>
             <tr>
-                <th>ФИО</th>
+                <th>FİO</th>
                 {% for date in date_period %}
                     <th>{{ date|date:"d.m.Y" }}</th>
                 {% endfor %}
                 <th>Dəvamiyyət</th>
+                <th>Yekun</th>
             </tr>
             <tr>
-                <th>Тема урока</th>
+                <th>Dərs movzusu</th>
                 {% for date in date_period %}
                     <th>
                         <div
                             onclick="showTopicEditBox(event, '{{ date|date:'Y-m-d' }}')"
                             id="lesson-topic-{{ date|date:'Y-m-d' }}"
                             style="word-wrap: break-word; white-space: pre-wrap; max-width: 150px; overflow-wrap: break-word;">
-                            {{ lesson_topics|get_dict_value:date|default:"Нет темы" }}
+                            {{ lesson_topics|get_dict_value:date|default:"Mövzu" }}
                         </div>
                     </th>
                 {% endfor %}
-                <th>Тема отсутствует</th>
+                <th>Sem</th>
+                <th>Sem</th>
             </tr>
 
         </thead>
@@ -95,6 +97,17 @@
                             {{ attendance_scores|get_dict_value:student.id|default:'--' }}
                         </a>
                     </td>
+                    <td>
+                        <a href="#"
+                           onclick="showSumSelectBox(event, {{ student.id }})"
+                           id="student-sum-{{ student.id }}"
+                           data-student="{{ student.id }}"
+                           class="sum-link">
+                            {{ sum_scores|get_dict_value:student.id|default:'--' }}
+                        </a>
+                    </td>
+
+
 
 
 
@@ -187,6 +200,68 @@
             request.send(params);
         }
 
+        function showSumSelectBox(event, studentId) {
+            event.preventDefault();
+            const targetLink = event.target;
+            const oldSumScore = targetLink.innerText.trim();
+
+            const selectBox = document.createElement("select");
+            const sumOptions = {
+                "-1": "q",
+                "0": "--",
+                "-2": "İ",
+            };
+            for (let i = 1; i <= 50; i++) {
+                sumOptions[i.toString()] = i.toString();
+            }
+
+            for (let key in sumOptions) {
+                const option = document.createElement("option");
+                option.value = key;
+                option.text = sumOptions[key];
+                if (sumOptions[key] === oldSumScore) {
+                    option.selected = true;
+                }
+                selectBox.appendChild(option);
+            }
+
+            selectBox.addEventListener("change", () => {
+                const newSumValue = selectBox.value;
+                sendSumScore(studentId, newSumValue, targetLink);
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+            });
+
+            selectBox.addEventListener("blur", () => {
+                selectBox.parentNode.replaceChild(targetLink, selectBox);
+            });
+
+            targetLink.parentNode.replaceChild(selectBox, targetLink);
+            setTimeout(() => {
+                selectBox.focus();
+            }, 0);
+        }
+
+        function sendSumScore(studentId, sumValue, targetLink) {
+            const request = new XMLHttpRequest();
+            const url = "{% url 'add_sum_score' %}";
+            const csrftoken = getCookie('csrftoken');
+            const params = `student=${encodeURIComponent(studentId)}&sum_score=${encodeURIComponent(sumValue)}&lesson={{ lesson.id }}`;
+
+            request.open("POST", url, true);
+            request.setRequestHeader("X-CSRFToken", csrftoken);
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            request.onreadystatechange = function () {
+                if (request.readyState === 4) {
+                    if (request.status === 200) {
+                        targetLink.innerText = sumValue === "-1" ? "q" : sumValue;
+                    } else {
+                        console.error("Ошибка при сохранении суммы:", request.responseText);
+                    }
+                }
+            };
+            request.send(params);
+        }
 
 
 
@@ -196,7 +271,7 @@
             const inputBox = document.createElement("input");
 
             inputBox.type = "text";
-            inputBox.value = oldTopic === "Нет темы" ? "" : oldTopic;
+            inputBox.value = oldTopic === "Mövzu yoxdur" ? "" : oldTopic;
             inputBox.onblur = function() {
                 saveLessonTopic(date, inputBox.value, topicElement);
             };
@@ -218,7 +293,7 @@
 
             request.onreadystatechange = function () {
                 if (request.readyState === 4 && request.status === 200) {
-                    topicElement.innerText = newTopic || "Нет темы";
+                    topicElement.innerText = newTopic || "Mövzu yoxdur";
                 }
             };
             request.send(params);

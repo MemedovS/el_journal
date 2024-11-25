@@ -59,12 +59,12 @@ class ContactForm(forms.ModelForm):
     """Форма связанная с пользовательской формой, контактные данные."""
     class Meta:
         model = Contact
-        fields = ['phone1', 'phone2', 'phone3']
-        widgets = {'phone1': forms.TextInput(attrs={'placeholder': 'Əsas telefon nömrəsi'}),
-                   'phone2': forms.TextInput(attrs={'placeholder': 'Əlavə telefon nömrəsi'}),
-                   'phone3': forms.TextInput(attrs={'placeholder': 'Əlavə telefon nömrəsi №2'}),
-                   }
-
+        fields = ['phone', 'email']
+        widgets = {
+            'phone': forms.TextInput(attrs={'placeholder': 'Əsas telefon nömrəsi'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Elektron poçt ünvanı'}),
+        }
 
 ContactFormSet = modelformset_factory(Contact, form=ContactForm, max_num=1, extra=1)
 StudentFormSet = modelformset_factory(Student, form=StudentForm, max_num=1, extra=1)
+

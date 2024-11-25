@@ -41,7 +41,7 @@ class LessonTopic(models.Model):
 class Grade(models.Model):
     """Справочник всех существующих абравиатур классов."""
     number = models.SmallIntegerField('Цифра')
-    symbol = models.CharField('Символ', max_length=50)
+    symbol = models.CharField('Символ', max_length=250)
     lessons = models.ManyToManyField(Lesson, related_name='grade', verbose_name='Уроки класса')
 
     def __str__(self):
@@ -130,3 +130,26 @@ class AttendanceScore(models.Model):
     class Meta:
         verbose_name = "Оценка посещаемости"
         verbose_name_plural = "Оценки посещаемости"
+
+class SumScore(models.Model):
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Студент",
+        related_name="sum_scores"
+    )
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.CASCADE,
+        verbose_name="Урок"
+    )
+
+
+    score = models.IntegerField(verbose_name="Сумма")
+
+    def __str__(self):
+        return f"{self.student} - {self.lesson} - Сумма: {self.score}"
+
+    class Meta:
+        verbose_name = "Оценка за сумму"
+        verbose_name_plural = "Оценки за сумму"
